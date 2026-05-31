@@ -10,7 +10,7 @@ Window::Window(int &argc, char **argv, int width, int height, const std::string 
 {
     glutInit(&argc, argv);
 
-    glutInitContextVersion(3, 3);
+    glutInitContextVersion(4, 5);
     glutInitContextProfile(GLUT_CORE_PROFILE);
 
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
