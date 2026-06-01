@@ -23,6 +23,9 @@ add_executable(${PROJECT_NAME}
     src/graphics/MeshFactory.cpp
     src/graphics/MeshFactory.hpp
 
+    src/utils/GltfLoader.cpp
+    src/utils/GltfLoader.hpp
+
     src/scene/Camera.cpp
     src/scene/Camera.hpp
 )
@@ -46,6 +49,7 @@ endif()
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         src
+        third_party/tinygltf
 )
 
 target_link_libraries(${PROJECT_NAME}

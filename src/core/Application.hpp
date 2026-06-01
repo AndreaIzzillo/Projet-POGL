@@ -2,6 +2,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 #include "core/Window.hpp"
 #include "graphics/Mesh.hpp"
@@ -9,6 +10,7 @@
 #include "graphics/Renderer.hpp"
 #include "graphics/Shader.hpp"
 #include "scene/Camera.hpp"
+#include "utils/GltfLoader.hpp"
 
 class Application
 {
@@ -29,7 +31,7 @@ private:
     Camera camera;
 
     std::unique_ptr<Shader> shader;
-    std::unique_ptr<Mesh> mesh;
+    std::vector<std::unique_ptr<Mesh>> meshes;
 
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;

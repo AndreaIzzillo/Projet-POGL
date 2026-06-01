@@ -3,6 +3,7 @@
 #include <GL/freeglut.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 #define ESC 27
 
@@ -17,8 +18,9 @@ Application::Application(int &argc, char **argv)
     renderer.init();
 
     shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
-    // mesh = MeshFactory::createTriangle();
-    mesh = MeshFactory::createCube();
+    meshes = GltfLoader::load("assets/Muna.glb");
+    if (meshes.empty())
+        meshes.push_back(MeshFactory::createCube());
 
     previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
 
@@ -28,7 +30,6 @@ Application::Application(int &argc, char **argv)
     glutKeyboardUpFunc(Application::keyboardUpCallback);
     glutMouseFunc(Application::mouseButtonCallback);
     glutMotionFunc(Application::mouseMotionCallback);
-
 }
 
 void Application::run()
@@ -72,7 +73,10 @@ void Application::render()
     shader->setMat4("uView", camera.getViewMatrix());
     shader->setMat4("uProjection", camera.getProjectionMatrix());
 
-    mesh->draw();
+    for (const std::unique_ptr<Mesh> &mesh : meshes)
+    {
+        mesh->draw();
+    }
 
     window.swapBuffers();
 }

@@ -34,12 +34,12 @@ private:
     glm::vec3 up = { 0.0f, 1.0f, 0.0f };
     glm::vec3 right = { 1.0f, 0.0f, 0.0f };
 
-    float movementSpeed = 3.0f;
+    float movementSpeed = 100.0f;
     float rotationSpeed = 90.0f;
     float mouseSensitivity = 0.01f;
 
     float fov = 90.0f;
     float aspectRatio = 1.0f;
     float nearPlane = 0.1f;
-    float farPlane = 100.0f;
+    float farPlane = 1000.0f;
 };
