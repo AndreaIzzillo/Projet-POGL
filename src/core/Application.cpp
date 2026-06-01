@@ -9,7 +9,7 @@
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
-    : window(argc, argv, 1024, 768, "Projet POGL")
+    : window(argc, argv, 1600, 900, "Projet POGL")
     , camera(static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight()))
 {
     instance = this;
@@ -17,7 +17,8 @@ Application::Application(int &argc, char **argv)
     renderer.init();
 
     shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
-    triangle = std::make_unique<Triangle>();
+    // mesh = MeshFactory::createTriangle();
+    mesh = MeshFactory::createCube();
 
     previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
 
@@ -68,7 +69,7 @@ void Application::render()
     shader->setMat4("uView", camera.getViewMatrix());
     shader->setMat4("uProjection", camera.getProjectionMatrix());
 
-    triangle->draw();
+    mesh->draw();
 
     window.swapBuffers();
 }
