@@ -1,11 +1,14 @@
 #include "core/Application.hpp"
 
 #include <GL/freeglut.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
     : window(argc, argv, 1024, 768, "Projet POGL")
+    , camera(static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight()))
 {
     instance = this;
 
@@ -29,6 +32,11 @@ void Application::render()
     renderer.clear();
 
     shader->use();
+    glm::mat4 model = glm::mat4(1.0f);
+    shader->setMat4("uModel", model);
+    shader->setMat4("uView", camera.getViewMatrix());
+    shader->setMat4("uProjection", camera.getProjectionMatrix());
+
     triangle->draw();
 
     window.swapBuffers();

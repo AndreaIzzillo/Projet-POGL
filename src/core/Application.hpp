@@ -6,6 +6,7 @@
 #include "graphics/Renderer.hpp"
 #include "graphics/Shader.hpp"
 #include "graphics/Triangle.hpp"
+#include "scene/Camera.hpp"
 
 class Application
 {
@@ -22,6 +23,7 @@ public:
 private:
     Window window;
     Renderer renderer;
+    Camera camera;
 
     std::unique_ptr<Shader> shader;
     std::unique_ptr<Triangle> triangle;

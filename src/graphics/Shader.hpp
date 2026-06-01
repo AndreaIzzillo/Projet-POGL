@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <glm/mat4x4.hpp>
 #include <string>
 
 class Shader
@@ -14,6 +15,8 @@ public:
 
     void use() const;
     GLuint getId() const;
+
+    void setMat4(const std::string &name, const glm::mat4 &matrix) const;
 
 private:
     GLuint programId = 0;

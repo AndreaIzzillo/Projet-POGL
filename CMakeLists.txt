@@ -18,11 +18,25 @@ add_executable(${PROJECT_NAME}
     src/graphics/Triangle.hpp
     src/core/Window.cpp
     src/core/Window.hpp
+    src/scene/Camera.cpp
+    src/scene/Camera.hpp
 )
 
+# --- OpenGL ---
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLUT REQUIRED)
+find_package(glm CONFIG QUIET)
+
+if(NOT TARGET glm::glm)
+    find_path(GLM_INCLUDE_DIR glm/glm.hpp REQUIRED)
+    add_library(glm::glm INTERFACE IMPORTED)
+    set_target_properties(glm::glm
+        PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${GLM_INCLUDE_DIR}"
+    )
+endif()
+# --- OpenGL ---
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE
@@ -34,4 +48,5 @@ target_link_libraries(${PROJECT_NAME}
         GLEW::GLEW
         GLUT::GLUT
         OpenGL::GL
+        glm::glm
 )
