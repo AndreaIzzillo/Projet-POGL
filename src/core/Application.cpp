@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define ESC 27
+
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
@@ -17,14 +19,43 @@ Application::Application(int &argc, char **argv)
     shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
     triangle = std::make_unique<Triangle>();
 
+    previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
+
     glutDisplayFunc(Application::displayCallback);
     glutIdleFunc(Application::idleCallback);
-    glutKeyboardFunc(Application::keyboardCallback);
+    glutKeyboardFunc(Application::keyboardDownCallback);
+    glutKeyboardUpFunc(Application::keyboardUpCallback);
 }
 
 void Application::run()
 {
     window.startMainLoop();
+}
+
+void Application::update(float dt)
+{
+    if (keys[ESC])
+        glutLeaveMainLoop();
+    if (keys['w'])
+        camera.moveForward(dt);
+    if (keys['s'])
+        camera.moveBackward(dt);
+    if (keys['a'])
+        camera.moveLeft(dt);
+    if (keys['d'])
+        camera.moveRight(dt);
+    if (keys['q'])
+        camera.moveUp(dt);
+    if (keys['e'])
+        camera.moveDown(dt);
+    if (keys['j'])
+        camera.rotateLeft(dt);
+    if (keys['l'])
+        camera.rotateRight(dt);
+    if (keys['i'])
+        camera.rotateUp(dt);
+    if (keys['k'])
+        camera.rotateDown(dt);
 }
 
 void Application::render()
@@ -52,13 +83,32 @@ void Application::displayCallback()
 
 void Application::idleCallback()
 {
+    if (!instance)
+    {
+        return;
+    }
+
+    const int currentTimeMs = glutGet(GLUT_ELAPSED_TIME);
+    const float deltaTime = static_cast<float>(currentTimeMs - instance->previousTimeMs) / 1000.0f;
+    instance->previousTimeMs = currentTimeMs;
+
+    instance->update(deltaTime);
+
     glutPostRedisplay();
 }
 
-void Application::keyboardCallback(unsigned char key, int, int)
+void Application::keyboardDownCallback(unsigned char key, int x, int y)
 {
-    if (key == 27)
+    if (instance)
     {
-        glutLeaveMainLoop();
+        instance->keys[key] = true;
+    }
+}
+
+void Application::keyboardUpCallback(unsigned char key, int x, int y)
+{
+    if (instance)
+    {
+        instance->keys[key] = false;
     }
 }

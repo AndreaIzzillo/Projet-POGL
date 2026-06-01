@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 
 #include "core/Window.hpp"
@@ -18,6 +19,7 @@ public:
     Application &operator=(const Application &) = delete;
 
     void run();
+    void update(float dt);
     void render();
 
 private:
@@ -28,9 +30,13 @@ private:
     std::unique_ptr<Shader> shader;
     std::unique_ptr<Triangle> triangle;
 
+    std::array<bool, 256> keys{};
+    int previousTimeMs = 0;
+
     static Application *instance;
 
     static void displayCallback();
     static void idleCallback();
-    static void keyboardCallback(unsigned char key, int x, int y);
+    static void keyboardDownCallback(unsigned char key, int x, int y);
+    static void keyboardUpCallback(unsigned char key, int x, int y);
 };

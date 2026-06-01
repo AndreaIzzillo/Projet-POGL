@@ -13,10 +13,28 @@ public:
 
     void setAspectRatio(float aspectRatio);
 
+    void moveForward(float dt);
+    void moveBackward(float dt);
+    void moveLeft(float dt);
+    void moveRight(float dt);
+    void moveUp(float dt);
+    void moveDown(float dt);
+    void rotateLeft(float dt);
+    void rotateRight(float dt);
+    void rotateUp(float dt);
+    void rotateDown(float dt);
+
 private:
+    void rotate(float yawDelta, float pitchDelta);
+
     glm::vec3 position = { 0.0f, 0.0f, 3.0f };
-    glm::vec3 target = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 front = { 0.0f, 0.0f, -1.0f };
+    glm::vec3 worldUp = { 0.0f, 1.0f, 0.0f };
     glm::vec3 up = { 0.0f, 1.0f, 0.0f };
+    glm::vec3 right = { 1.0f, 0.0f, 0.0f };
+
+    float movementSpeed = 3.0f;
+    float rotationSpeed = 90.0f;
 
     float fov = 90.0f;
     float aspectRatio = 1.0f;
