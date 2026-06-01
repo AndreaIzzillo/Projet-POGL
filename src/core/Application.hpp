@@ -33,10 +33,16 @@ private:
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;
 
+    bool mouseCaptured = false;
+    int lastMouseX = 0;
+    int lastMouseY = 0;
+
     static Application *instance;
 
     static void displayCallback();
     static void idleCallback();
     static void keyboardDownCallback(unsigned char key, int x, int y);
     static void keyboardUpCallback(unsigned char key, int x, int y);
+    static void mouseButtonCallback(int button, int state, int x, int y);
+    static void mouseMotionCallback(int x, int y);
 };

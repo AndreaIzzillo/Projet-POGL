@@ -71,6 +71,11 @@ void Camera::rotateDown(float dt)
     rotate(0.0f, -rotationSpeed * dt);
 }
 
+void Camera::rotateByMouse(float dx, float dy)
+{
+    rotate(-dx * mouseSensitivity, -dy * mouseSensitivity);
+}
+
 void Camera::rotate(float yawDelta, float pitchDelta)
 {
     if (yawDelta != 0.0f)

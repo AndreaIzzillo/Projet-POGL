@@ -25,6 +25,9 @@ Application::Application(int &argc, char **argv)
     glutIdleFunc(Application::idleCallback);
     glutKeyboardFunc(Application::keyboardDownCallback);
     glutKeyboardUpFunc(Application::keyboardUpCallback);
+    glutMouseFunc(Application::mouseButtonCallback);
+    glutMotionFunc(Application::mouseMotionCallback);
+
 }
 
 void Application::run()
@@ -111,4 +114,30 @@ void Application::keyboardUpCallback(unsigned char key, int x, int y)
     {
         instance->keys[key] = false;
     }
+}
+
+void Application::mouseButtonCallback(int button, int state, int x, int y)
+{
+    if (!instance)
+        return;
+    if (button == GLUT_LEFT_BUTTON)
+    {
+        instance->mouseCaptured = (state == GLUT_DOWN);
+        instance->lastMouseX = x;
+        instance->lastMouseY = y;
+        glutSetCursor(instance->mouseCaptured ? GLUT_CURSOR_NONE : GLUT_CURSOR_INHERIT);
+    }
+}
+
+void Application::mouseMotionCallback(int x, int y)
+{
+    if (!instance || !instance->mouseCaptured)
+        return;
+
+    const int dx = x - instance->lastMouseX;
+    const int dy = y - instance->lastMouseY;
+    instance->lastMouseX = x;
+    instance->lastMouseY = y;
+
+    instance->camera.rotateByMouse(static_cast<float>(dx), static_cast<float>(dy));
 }

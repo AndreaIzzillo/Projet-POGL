@@ -23,6 +23,7 @@ public:
     void rotateRight(float dt);
     void rotateUp(float dt);
     void rotateDown(float dt);
+    void rotateByMouse(float dx, float dy);
 
 private:
     void rotate(float yawDelta, float pitchDelta);
@@ -35,6 +36,7 @@ private:
 
     float movementSpeed = 3.0f;
     float rotationSpeed = 90.0f;
+    float mouseSensitivity = 0.01f;
 
     float fov = 90.0f;
     float aspectRatio = 1.0f;
