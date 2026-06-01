@@ -4,9 +4,10 @@
 #include <memory>
 
 #include "core/Window.hpp"
+#include "graphics/Mesh.hpp"
+#include "graphics/MeshFactory.hpp"
 #include "graphics/Renderer.hpp"
 #include "graphics/Shader.hpp"
-#include "graphics/Triangle.hpp"
 #include "scene/Camera.hpp"
 
 class Application
@@ -28,7 +29,7 @@ private:
     Camera camera;
 
     std::unique_ptr<Shader> shader;
-    std::unique_ptr<Triangle> triangle;
+    std::unique_ptr<Mesh> mesh;
 
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;

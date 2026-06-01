@@ -8,16 +8,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
+
     src/core/Application.cpp
     src/core/Application.hpp
+    src/core/Window.cpp
+    src/core/Window.hpp
+
     src/graphics/Renderer.cpp
     src/graphics/Renderer.hpp
     src/graphics/Shader.cpp
     src/graphics/Shader.hpp
-    src/graphics/Triangle.cpp
-    src/graphics/Triangle.hpp
-    src/core/Window.cpp
-    src/core/Window.hpp
+    src/graphics/Mesh.cpp
+    src/graphics/Mesh.hpp
+    src/graphics/MeshFactory.cpp
+    src/graphics/MeshFactory.hpp
+
     src/scene/Camera.cpp
     src/scene/Camera.hpp
 )
