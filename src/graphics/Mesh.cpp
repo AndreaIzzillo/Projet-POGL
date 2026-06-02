@@ -25,9 +25,14 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           reinterpret_cast<void *>(offsetof(Vertex, position)));
 
-    // layout(location = 1) in vec3 aColor;
+    // layout(location = 1) in vec3 aNormal;
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          reinterpret_cast<void *>(offsetof(Vertex, normal)));
+
+    // layout(location = 2) in vec3 aColor;
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           reinterpret_cast<void *>(offsetof(Vertex, color)));
 
     glBindVertexArray(0);

@@ -168,6 +168,45 @@ namespace
         return glm::vec3(0.8f);
     }
 
+    std::vector<glm::vec3> computeVertexNormals(const std::vector<glm::vec3> &positions,
+                                                const std::vector<unsigned int> &indices)
+    {
+        std::vector<glm::vec3> normals(positions.size(), glm::vec3(0.0f));
+
+        for (size_t i = 0; i + 2 < indices.size(); i += 3)
+        {
+            const unsigned int i0 = indices[i + 0];
+            const unsigned int i1 = indices[i + 1];
+            const unsigned int i2 = indices[i + 2];
+
+            if (i0 >= positions.size() || i1 >= positions.size() || i2 >= positions.size())
+            {
+                continue;
+            }
+
+            const glm::vec3 edge1 = positions[i1] - positions[i0];
+            const glm::vec3 edge2 = positions[i2] - positions[i0];
+            const glm::vec3 faceNormal = glm::cross(edge1, edge2);
+
+            if (glm::dot(faceNormal, faceNormal) <= 0.0f)
+            {
+                continue;
+            }
+
+            normals[i0] += faceNormal;
+            normals[i1] += faceNormal;
+            normals[i2] += faceNormal;
+        }
+
+        for (glm::vec3 &normal : normals)
+        {
+            const float lengthSquared = glm::dot(normal, normal);
+            normal = lengthSquared > 0.0f ? glm::normalize(normal) : glm::vec3(0.0f, 1.0f, 0.0f);
+        }
+
+        return normals;
+    }
+
     void appendPrimitive(const tinygltf::Model &model, const tinygltf::Primitive &primitive,
                          const glm::mat4 &worldMatrix, std::vector<std::unique_ptr<Mesh>> &out)
     {
@@ -191,6 +230,20 @@ namespace
             return;
         }
 
+        std::vector<unsigned int> indices;
+        if (primitive.indices >= 0)
+        {
+            indices = readIndices(model, model.accessors[primitive.indices]);
+        }
+        else
+        {
+            indices.resize(vertexCount);
+            for (size_t i = 0; i < vertexCount; ++i)
+            {
+                indices[i] = static_cast<unsigned int>(i);
+            }
+        }
+
         std::vector<float> normals;
         const auto normalIt = primitive.attributes.find("NORMAL");
         if (normalIt != primitive.attributes.end())
@@ -211,17 +264,27 @@ namespace
 
         const glm::vec3 baseColor = primitiveBaseColor(model, primitive);
         const glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(worldMatrix)));
-        const glm::vec3 lightDir = glm::normalize(glm::vec3(0.4f, 1.0f, 0.6f));
+
+        std::vector<glm::vec3> worldPositions;
+        worldPositions.reserve(vertexCount);
+        for (size_t i = 0; i < vertexCount; ++i)
+        {
+            const glm::vec3 localPos(positions[i * 3 + 0], positions[i * 3 + 1],
+                                     positions[i * 3 + 2]);
+            worldPositions.push_back(glm::vec3(worldMatrix * glm::vec4(localPos, 1.0f)));
+        }
+
+        std::vector<glm::vec3> generatedNormals;
+        if (normals.size() < vertexCount * 3)
+        {
+            generatedNormals = computeVertexNormals(worldPositions, indices);
+        }
 
         std::vector<Vertex> vertices;
         vertices.reserve(vertexCount);
 
         for (size_t i = 0; i < vertexCount; ++i)
         {
-            const glm::vec3 localPos(positions[i * 3 + 0], positions[i * 3 + 1],
-                                     positions[i * 3 + 2]);
-            const glm::vec3 worldPos = glm::vec3(worldMatrix * glm::vec4(localPos, 1.0f));
-
             glm::vec3 color = baseColor;
             if (!vertexColors.empty())
             {
@@ -230,30 +293,21 @@ namespace
                                   vertexColors[offset + 2]);
             }
 
-            if (!normals.empty())
+            glm::vec3 normal(0.0f);
+            if (generatedNormals.empty())
             {
-                const glm::vec3 n = glm::normalize(
-                    normalMatrix
-                    * glm::vec3(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]));
-                const float diffuse = glm::max(glm::dot(n, lightDir), 0.0f);
-                color *= 0.25f + 0.75f * diffuse;
+                normal = normalMatrix
+                    * glm::vec3(normals[i * 3 + 0], normals[i * 3 + 1], normals[i * 3 + 2]);
             }
-
-            vertices.push_back({ worldPos, color });
-        }
-
-        std::vector<unsigned int> indices;
-        if (primitive.indices >= 0)
-        {
-            indices = readIndices(model, model.accessors[primitive.indices]);
-        }
-        else
-        {
-            indices.resize(vertexCount);
-            for (size_t i = 0; i < vertexCount; ++i)
+            else
             {
-                indices[i] = static_cast<unsigned int>(i);
+                normal = generatedNormals[i];
             }
+            const float normalLengthSquared = glm::dot(normal, normal);
+            normal =
+                normalLengthSquared > 0.0f ? glm::normalize(normal) : glm::vec3(0.0f, 1.0f, 0.0f);
+
+            vertices.push_back({ worldPositions[i], normal, color });
         }
 
         out.push_back(std::make_unique<Mesh>(vertices, indices));

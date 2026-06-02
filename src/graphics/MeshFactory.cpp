@@ -2,9 +2,13 @@
 
 std::unique_ptr<Mesh> MeshFactory::createTriangle()
 {
-    std::vector<Vertex> vertices = { { glm::vec3(-0.6f, -0.5f, 0.0f), glm::vec3(1.0f, 0.2f, 0.2f) },
-                                     { glm::vec3(0.6f, -0.5f, 0.0f), glm::vec3(0.2f, 1.0f, 0.2f) },
-                                     { glm::vec3(0.0f, 0.6f, 0.0f), glm::vec3(0.2f, 0.4f, 1.0f) } };
+    const glm::vec3 normal = glm::vec3(0.0f, 0.0f, 1.0f);
+
+    std::vector<Vertex> vertices = {
+        { glm::vec3(-0.6f, -0.5f, 0.0f), normal, glm::vec3(1.0f, 0.2f, 0.2f) },
+        { glm::vec3(0.6f, -0.5f, 0.0f), normal, glm::vec3(0.2f, 1.0f, 0.2f) },
+        { glm::vec3(0.0f, 0.6f, 0.0f), normal, glm::vec3(0.2f, 0.4f, 1.0f) }
+    };
 
     std::vector<unsigned int> indices = { 0, 1, 2 };
 
@@ -13,15 +17,19 @@ std::unique_ptr<Mesh> MeshFactory::createTriangle()
 
 std::unique_ptr<Mesh> MeshFactory::createCube()
 {
+    auto makeVertex = [](const glm::vec3 &position, const glm::vec3 &color) {
+        return Vertex{ position, glm::normalize(position), color };
+    };
+
     std::vector<Vertex> vertices = {
-        { glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(1.0f, 0.2f, 0.2f) },
-        { glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.2f, 1.0f, 0.2f) },
-        { glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.2f, 0.4f, 1.0f) },
-        { glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(1.0f, 1.0f, 0.2f) },
-        { glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(1.0f, 0.2f, 1.0f) },
-        { glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.2f, 1.0f, 1.0f) },
-        { glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f) },
-        { glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f) }
+        makeVertex(glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(1.0f, 0.2f, 0.2f)),
+        makeVertex(glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.2f, 1.0f, 0.2f)),
+        makeVertex(glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.2f, 0.4f, 1.0f)),
+        makeVertex(glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(1.0f, 1.0f, 0.2f)),
+        makeVertex(glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(1.0f, 0.2f, 1.0f)),
+        makeVertex(glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.2f, 1.0f, 1.0f)),
+        makeVertex(glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f)),
+        makeVertex(glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f))
     };
 
     std::vector<unsigned int> indices = { 0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4, 4, 7, 3, 3, 0, 4,

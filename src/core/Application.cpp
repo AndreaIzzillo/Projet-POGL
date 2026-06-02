@@ -10,7 +10,7 @@
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
-    : window(argc, argv, 1600, 900, "Projet POGL")
+    : window(argc, argv, 1600, 1000, "Projet POGL")
     , camera(static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight()))
 {
     instance = this;

@@ -16,6 +16,7 @@ public:
     void use() const;
     GLuint getId() const;
 
+    void setVec3(const std::string &name, const glm::vec3 &value) const;
     void setMat4(const std::string &name, const glm::mat4 &matrix) const;
 
 private:
