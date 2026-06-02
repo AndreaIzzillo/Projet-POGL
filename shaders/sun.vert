@@ -7,10 +7,24 @@ layout(location = 2) in vec3 aColor;
 uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProjection;
+uniform float uTime;
 
+out vec3 vLocalPosition;
+out vec3 vLocalNormal;
+out vec3 vViewPosition;
+out vec3 vViewNormal;
 out vec3 vColor;
 
 void main() {
+    vec4 worldPosition = uModel * vec4(aPosition, 1.0);
+    vec4 viewPosition = uView * worldPosition;
+    mat3 viewNormalMatrix = transpose(inverse(mat3(uView * uModel)));
+
+    vLocalPosition = aPosition;
+    vLocalNormal = normalize(aNormal);
+    vViewPosition = viewPosition.xyz;
+    vViewNormal = normalize(viewNormalMatrix * aNormal);
     vColor = aColor;
-    gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
+
+    gl_Position = uProjection * viewPosition;
 }

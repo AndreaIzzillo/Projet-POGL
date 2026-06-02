@@ -10,28 +10,20 @@
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
-    : window(argc, argv, 1600, 1000, "Projet POGL")
+    : window(argc, argv, 1600 * 2, 1000 * 2, "Projet POGL")
     , camera(static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight()))
 {
     instance = this;
 
     renderer.init();
 
-    // Muna
-    munaShader = std::make_unique<Shader>("shaders/muna.vert", "shaders/muna.frag");
-    Transform munaTransform;
-    munaTransform.position = glm::vec3(0.0f, 0.0f, -500.0f);
-    munaTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    munaTransform.scale = glm::vec3(0.1f);
-    loadObjectFromFile("assets/muna.glb", munaShader.get(), munaTransform);
-
     // The Sun
     sunShader = std::make_unique<Shader>("shaders/sun.vert", "shaders/sun.frag");
     Transform sunTransform;
-    sunTransform.position = glm::vec3(0.0f, 0.0f, 500.0f);
+    sunTransform.position = glm::vec3(0.0f, 0.0f, 0.0f);
     sunTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    sunTransform.scale = glm::vec3(100.0f);
-    loadObjectFromMesh(MeshFactory::createSphere(1.0f, 64, 32, glm::vec3(1.0f, 0.5f, 0.0f)),
+    sunTransform.scale = glm::vec3(200.0f);
+    loadObjectFromMesh(MeshFactory::createSphere(3, glm::vec3(1.0f, 0.5f, 0.0f)),
                        sunShader.get(), sunTransform);
 
     previousTimeMs = glutGet(GLUT_ELAPSED_TIME);

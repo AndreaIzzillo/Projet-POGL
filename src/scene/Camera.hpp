@@ -28,7 +28,7 @@ public:
 private:
     void rotate(float yawDelta, float pitchDelta);
 
-    glm::vec3 position = { 0.0f, 0.0f, 3.0f };
+    glm::vec3 position = { 0.0f, 0.0f, 300.0f };
     glm::vec3 front = { 0.0f, 0.0f, -1.0f };
     glm::vec3 worldUp = { 0.0f, 1.0f, 0.0f };
     glm::vec3 up = { 0.0f, 1.0f, 0.0f };

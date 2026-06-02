@@ -1,57 +1,104 @@
 #include "graphics/MeshFactory.hpp"
 
-std::unique_ptr<Mesh> MeshFactory::createSphere(float radius, unsigned int sectors,
-                                                unsigned int stacks, const glm::vec3 &color)
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <unordered_map>
+#include <utility>
+
+std::unique_ptr<Mesh> MeshFactory::createSphere(unsigned int subdivisions,
+                                                   const glm::vec3 &color)
 {
     std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    std::vector<std::array<unsigned int, 3>> faces = { std::array<unsigned int, 3>{ 0, 11, 5 },
+                                                       { 0, 5, 1 },
+                                                       { 0, 1, 7 },
+                                                       { 0, 7, 10 },
+                                                       { 0, 10, 11 },
+                                                       { 1, 5, 9 },
+                                                       { 5, 11, 4 },
+                                                       { 11, 10, 2 },
+                                                       { 10, 7, 6 },
+                                                       { 7, 1, 8 },
+                                                       { 3, 9, 4 },
+                                                       { 3, 4, 2 },
+                                                       { 3, 2, 6 },
+                                                       { 3, 6, 8 },
+                                                       { 3, 8, 9 },
+                                                       { 4, 9, 5 },
+                                                       { 2, 4, 11 },
+                                                       { 6, 2, 10 },
+                                                       { 8, 6, 7 },
+                                                       { 9, 8, 1 } };
 
-    constexpr float PI = 3.14159265359f;
+    auto addVertex = [&vertices, &color](const glm::vec3 &position) {
+        const glm::vec3 normalizedPosition = glm::normalize(position);
+        vertices.push_back(Vertex{ normalizedPosition, normalizedPosition, color });
+        return static_cast<unsigned int>(vertices.size() - 1);
+    };
 
-    for (unsigned int stack = 0; stack <= stacks; ++stack)
+    const float t = (1.0f + std::sqrt(5.0f)) * 0.5f;
+    addVertex(glm::vec3(-1.0f, t, 0.0f));
+    addVertex(glm::vec3(1.0f, t, 0.0f));
+    addVertex(glm::vec3(-1.0f, -t, 0.0f));
+    addVertex(glm::vec3(1.0f, -t, 0.0f));
+    addVertex(glm::vec3(0.0f, -1.0f, t));
+    addVertex(glm::vec3(0.0f, 1.0f, t));
+    addVertex(glm::vec3(0.0f, -1.0f, -t));
+    addVertex(glm::vec3(0.0f, 1.0f, -t));
+    addVertex(glm::vec3(t, 0.0f, -1.0f));
+    addVertex(glm::vec3(t, 0.0f, 1.0f));
+    addVertex(glm::vec3(-t, 0.0f, -1.0f));
+    addVertex(glm::vec3(-t, 0.0f, 1.0f));
+
+    auto edgeKey = [](unsigned int a, unsigned int b) {
+        const unsigned int minIndex = a < b ? a : b;
+        const unsigned int maxIndex = a < b ? b : a;
+        return (static_cast<std::uint64_t>(minIndex) << 32) | maxIndex;
+    };
+
+    for (unsigned int i = 0; i < subdivisions; ++i)
     {
-        float stackRatio = static_cast<float>(stack) / static_cast<float>(stacks);
-        float stackAngle = PI / 2.0f - stackRatio * PI;
+        std::unordered_map<std::uint64_t, unsigned int> midpointCache;
+        std::vector<std::array<unsigned int, 3>> subdividedFaces;
+        subdividedFaces.reserve(faces.size() * 4);
 
-        float xy = radius * std::cos(stackAngle);
-        float z = radius * std::sin(stackAngle);
+        auto midpointIndex = [&](unsigned int a, unsigned int b) {
+            const std::uint64_t key = edgeKey(a, b);
+            const auto it = midpointCache.find(key);
+            if (it != midpointCache.end())
+            {
+                return it->second;
+            }
 
-        for (unsigned int sector = 0; sector <= sectors; ++sector)
+            const unsigned int midpoint =
+                addVertex((vertices[a].position + vertices[b].position) * 0.5f);
+            midpointCache.emplace(key, midpoint);
+            return midpoint;
+        };
+
+        for (const auto &face : faces)
         {
-            float sectorRatio = static_cast<float>(sector) / static_cast<float>(sectors);
-            float sectorAngle = sectorRatio * 2.0f * PI;
+            const unsigned int a = midpointIndex(face[0], face[1]);
+            const unsigned int b = midpointIndex(face[1], face[2]);
+            const unsigned int c = midpointIndex(face[2], face[0]);
 
-            float x = xy * std::cos(sectorAngle);
-            float y = xy * std::sin(sectorAngle);
-
-            glm::vec3 position(x, y, z);
-            glm::vec3 normal = glm::normalize(position);
-
-            vertices.push_back(Vertex{ position, normal, color });
+            subdividedFaces.push_back({ face[0], a, c });
+            subdividedFaces.push_back({ face[1], b, a });
+            subdividedFaces.push_back({ face[2], c, b });
+            subdividedFaces.push_back({ a, b, c });
         }
+
+        faces = std::move(subdividedFaces);
     }
 
-    for (unsigned int stack = 0; stack < stacks; ++stack)
+    std::vector<unsigned int> indices;
+    indices.reserve(faces.size() * 3);
+    for (const auto &face : faces)
     {
-        unsigned int k1 = stack * (sectors + 1);
-        unsigned int k2 = k1 + sectors + 1;
-
-        for (unsigned int sector = 0; sector < sectors; ++sector, ++k1, ++k2)
-        {
-            if (stack != 0)
-            {
-                indices.push_back(k1);
-                indices.push_back(k2);
-                indices.push_back(k1 + 1);
-            }
-
-            if (stack != stacks - 1)
-            {
-                indices.push_back(k1 + 1);
-                indices.push_back(k2);
-                indices.push_back(k2 + 1);
-            }
-        }
+        indices.push_back(face[0]);
+        indices.push_back(face[1]);
+        indices.push_back(face[2]);
     }
 
     return std::make_unique<Mesh>(vertices, indices);
