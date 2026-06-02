@@ -17,15 +17,22 @@ Application::Application(int &argc, char **argv)
 
     renderer.init();
 
-    // Load Muna
-    munaShader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
-
+    // Muna
+    munaShader = std::make_unique<Shader>("shaders/muna.vert", "shaders/muna.frag");
     Transform munaTransform;
     munaTransform.position = glm::vec3(0.0f, 0.0f, -500.0f);
     munaTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-    munaTransform.scale = glm::vec3(1.0f);
+    munaTransform.scale = glm::vec3(0.1f);
+    loadObjectFromFile("assets/muna.glb", munaShader.get(), munaTransform);
 
-    loadObjectFromFile("assets/Muna.glb", munaShader.get(), munaTransform);
+    // The Sun
+    sunShader = std::make_unique<Shader>("shaders/sun.vert", "shaders/sun.frag");
+    Transform sunTransform;
+    sunTransform.position = glm::vec3(0.0f, 0.0f, 500.0f);
+    sunTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    sunTransform.scale = glm::vec3(100.0f);
+    loadObjectFromMesh(MeshFactory::createSphere(1.0f, 64, 32, glm::vec3(1.0f, 0.5f, 0.0f)),
+                       sunShader.get(), sunTransform);
 
     previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
 
@@ -74,7 +81,7 @@ void Application::render()
 
     for (const RenderObject &object : objects)
     {
-        object.draw(camera);
+        object.draw(camera, elapsedTime);
     }
 
     window.swapBuffers();
@@ -98,6 +105,7 @@ void Application::idleCallback()
     const int currentTimeMs = glutGet(GLUT_ELAPSED_TIME);
     const float deltaTime = static_cast<float>(currentTimeMs - instance->previousTimeMs) / 1000.0f;
     instance->previousTimeMs = currentTimeMs;
+    instance->elapsedTime += deltaTime;
 
     instance->update(deltaTime);
 
@@ -166,4 +174,12 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
 
         objects.push_back(object);
     }
+}
+
+void Application::loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader,
+                                     const Transform &transform)
+{
+    RenderObject object(addMesh(std::move(mesh)), shader);
+    object.transform = transform;
+    objects.push_back(object);
 }

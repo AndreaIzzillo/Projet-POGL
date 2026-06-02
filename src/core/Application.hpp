@@ -33,6 +33,7 @@ private:
 
     // Shaders
     std::unique_ptr<Shader> munaShader;
+    std::unique_ptr<Shader> sunShader;
 
     // Meshes and objects
     std::vector<std::unique_ptr<Mesh>> meshes;
@@ -40,6 +41,7 @@ private:
 
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;
+    float elapsedTime = 0.0f;
 
     bool mouseCaptured = false;
     int lastMouseX = 0;
@@ -55,5 +57,7 @@ private:
     static void mouseMotionCallback(int x, int y);
 
     Mesh *addMesh(std::unique_ptr<Mesh> mesh);
+
     void loadObjectFromFile(const std::string &path, Shader *shader, const Transform &transform);
+    void loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader, const Transform &transform);
 };

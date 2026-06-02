@@ -10,7 +10,7 @@ class RenderObject
 public:
     RenderObject(Mesh *mesh, Shader *shader);
 
-    void draw(const Camera &camera) const;
+    void draw(const Camera &camera, float timeSeconds) const;
 
     Transform transform;
 
