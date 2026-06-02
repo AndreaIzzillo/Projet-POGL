@@ -28,6 +28,9 @@ add_executable(${PROJECT_NAME}
 
     src/scene/Camera.cpp
     src/scene/Camera.hpp
+    src/scene/Transform.hpp
+    src/scene/RenderObject.cpp
+    src/scene/RenderObject.hpp
 )
 
 # --- OpenGL ---

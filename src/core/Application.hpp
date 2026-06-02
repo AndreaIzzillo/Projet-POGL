@@ -10,6 +10,7 @@
 #include "graphics/Renderer.hpp"
 #include "graphics/Shader.hpp"
 #include "scene/Camera.hpp"
+#include "scene/RenderObject.hpp"
 #include "utils/GltfLoader.hpp"
 
 class Application
@@ -30,8 +31,12 @@ private:
     Renderer renderer;
     Camera camera;
 
-    std::unique_ptr<Shader> shader;
+    // Shaders
+    std::unique_ptr<Shader> munaShader;
+
+    // Meshes and objects
     std::vector<std::unique_ptr<Mesh>> meshes;
+    std::vector<RenderObject> objects;
 
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;
@@ -48,4 +53,7 @@ private:
     static void keyboardUpCallback(unsigned char key, int x, int y);
     static void mouseButtonCallback(int button, int state, int x, int y);
     static void mouseMotionCallback(int x, int y);
+
+    Mesh *addMesh(std::unique_ptr<Mesh> mesh);
+    void loadObjectFromFile(const std::string &path, Shader *shader, const Transform &transform);
 };

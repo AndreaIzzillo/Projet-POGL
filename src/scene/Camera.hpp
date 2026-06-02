@@ -36,7 +36,7 @@ private:
 
     float movementSpeed = 100.0f;
     float rotationSpeed = 90.0f;
-    float mouseSensitivity = 0.01f;
+    float mouseSensitivity = 0.1f;
 
     float fov = 90.0f;
     float aspectRatio = 1.0f;

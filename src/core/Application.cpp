@@ -17,10 +17,15 @@ Application::Application(int &argc, char **argv)
 
     renderer.init();
 
-    shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
-    meshes = GltfLoader::load("assets/Muna.glb");
-    if (meshes.empty())
-        meshes.push_back(MeshFactory::createCube());
+    // Load Muna
+    munaShader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
+
+    Transform munaTransform;
+    munaTransform.position = glm::vec3(0.0f, 0.0f, -500.0f);
+    munaTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+    munaTransform.scale = glm::vec3(1.0f);
+
+    loadObjectFromFile("assets/Muna.glb", munaShader.get(), munaTransform);
 
     previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
 
@@ -67,15 +72,9 @@ void Application::render()
 {
     renderer.clear();
 
-    shader->use();
-    glm::mat4 model = glm::mat4(1.0f);
-    shader->setMat4("uModel", model);
-    shader->setMat4("uView", camera.getViewMatrix());
-    shader->setMat4("uProjection", camera.getProjectionMatrix());
-
-    for (const std::unique_ptr<Mesh> &mesh : meshes)
+    for (const RenderObject &object : objects)
     {
-        mesh->draw();
+        object.draw(camera);
     }
 
     window.swapBuffers();
@@ -145,4 +144,26 @@ void Application::mouseMotionCallback(int x, int y)
     instance->lastMouseY = y;
 
     instance->camera.rotateByMouse(static_cast<float>(dx), static_cast<float>(dy));
+}
+
+Mesh *Application::addMesh(std::unique_ptr<Mesh> mesh)
+{
+    meshes.push_back(std::move(mesh));
+    return meshes.back().get();
+}
+
+void Application::loadObjectFromFile(const std::string &path, Shader *shader,
+                                     const Transform &transform)
+{
+    std::vector<std::unique_ptr<Mesh>> loadedMeshes = GltfLoader::load(path);
+
+    for (auto &loadedMesh : loadedMeshes)
+    {
+        Mesh *mesh = addMesh(std::move(loadedMesh));
+
+        RenderObject object(mesh, shader);
+        object.transform = transform;
+
+        objects.push_back(object);
+    }
 }
