@@ -52,7 +52,7 @@ endif()
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         src
-        third_party/tinygltf
+        libs/tinygltf
 )
 
 target_link_libraries(${PROJECT_NAME}
