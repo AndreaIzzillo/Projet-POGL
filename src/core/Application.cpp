@@ -17,6 +17,11 @@ Application::Application(int &argc, char **argv)
 
     renderer.init();
 
+    // Skybox
+    skybox = std::make_unique<Skybox>(std::array<std::string, 6>{
+        "assets/skybox/right.png", "assets/skybox/left.png", "assets/skybox/top.png",
+        "assets/skybox/bottom.png", "assets/skybox/front.png", "assets/skybox/back.png" });
+
     // The Sun
     sunShader = std::make_unique<Shader>("shaders/sun.vert", "shaders/sun.frag");
     Transform sunTransform;
@@ -80,6 +85,8 @@ void Application::update(float dt)
 void Application::render()
 {
     renderer.clear();
+
+    skybox->draw(camera);
 
     for (const RenderObject &object : objects)
     {

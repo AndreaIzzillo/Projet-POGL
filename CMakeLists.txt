@@ -22,6 +22,8 @@ add_executable(${PROJECT_NAME}
     src/graphics/Mesh.hpp
     src/graphics/MeshFactory.cpp
     src/graphics/MeshFactory.hpp
+    src/graphics/Skybox.cpp
+    src/graphics/Skybox.hpp
 
     src/utils/GltfLoader.cpp
     src/utils/GltfLoader.hpp
@@ -52,6 +54,7 @@ endif()
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         src
+        libs/stb_image
         libs/tinygltf
 )
 

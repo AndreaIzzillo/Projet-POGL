@@ -17,8 +17,6 @@ void RenderObject::draw(const Camera &camera, float timeSeconds) const
     if (isTransparent)
     {
         glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthMask(GL_FALSE);
     }
 
     if (reverseCullFace)
@@ -39,7 +37,6 @@ void RenderObject::draw(const Camera &camera, float timeSeconds) const
     if (isTransparent)
     {
         glDisable(GL_BLEND);
-        glDepthMask(GL_TRUE);
     }
     if (reverseCullFace)
     {

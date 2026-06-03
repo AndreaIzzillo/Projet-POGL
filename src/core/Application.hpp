@@ -9,6 +9,7 @@
 #include "graphics/MeshFactory.hpp"
 #include "graphics/Renderer.hpp"
 #include "graphics/Shader.hpp"
+#include "graphics/Skybox.hpp"
 #include "scene/Camera.hpp"
 #include "scene/RenderObject.hpp"
 #include "utils/GltfLoader.hpp"
@@ -39,6 +40,7 @@ private:
     // Meshes and objects
     std::vector<std::unique_ptr<Mesh>> meshes;
     std::vector<RenderObject> objects;
+    std::unique_ptr<Skybox> skybox;
 
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;
