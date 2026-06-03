@@ -8,7 +8,8 @@
 class RenderObject
 {
 public:
-    RenderObject(Mesh *mesh, Shader *shader);
+    RenderObject(Mesh *mesh, Shader *shader, bool isTransparent = false,
+                 bool reverseCullFace = false);
 
     void draw(const Camera &camera, float timeSeconds) const;
 
@@ -17,4 +18,6 @@ public:
 private:
     Mesh *mesh = nullptr;
     Shader *shader = nullptr;
+    bool isTransparent = false;
+    bool reverseCullFace = false;
 };

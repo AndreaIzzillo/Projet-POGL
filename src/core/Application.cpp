@@ -23,8 +23,14 @@ Application::Application(int &argc, char **argv)
     sunTransform.position = glm::vec3(0.0f, 0.0f, 0.0f);
     sunTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     sunTransform.scale = glm::vec3(200.0f);
+    loadObjectFromMesh(MeshFactory::createSphere(3, glm::vec3(1.0f, 0.5f, 0.0f)), sunShader.get(),
+                       sunTransform);
+
+    sunFlareShader = std::make_unique<Shader>("shaders/sun_flare.vert", "shaders/sun_flare.frag");
+    Transform sunFlareTransform = sunTransform;
+    sunFlareTransform.scale = glm::vec3(400.0f);
     loadObjectFromMesh(MeshFactory::createSphere(3, glm::vec3(1.0f, 0.5f, 0.0f)),
-                       sunShader.get(), sunTransform);
+                       sunFlareShader.get(), sunFlareTransform, true, true);
 
     previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
 
@@ -65,6 +71,10 @@ void Application::update(float dt)
         camera.rotateUp(dt);
     if (keys['k'])
         camera.rotateDown(dt);
+    if (keys['c'])
+        camera.increaseSpeed(dt);
+    if (keys['x'])
+        camera.decreaseSpeed(dt);
 }
 
 void Application::render()
@@ -153,7 +163,8 @@ Mesh *Application::addMesh(std::unique_ptr<Mesh> mesh)
 }
 
 void Application::loadObjectFromFile(const std::string &path, Shader *shader,
-                                     const Transform &transform)
+                                     const Transform &transform, bool isTransparent,
+                                     bool reverseCullFace)
 {
     std::vector<std::unique_ptr<Mesh>> loadedMeshes = GltfLoader::load(path);
 
@@ -161,7 +172,7 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
     {
         Mesh *mesh = addMesh(std::move(loadedMesh));
 
-        RenderObject object(mesh, shader);
+        RenderObject object(mesh, shader, isTransparent, reverseCullFace);
         object.transform = transform;
 
         objects.push_back(object);
@@ -169,9 +180,10 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
 }
 
 void Application::loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader,
-                                     const Transform &transform)
+                                     const Transform &transform, bool isTransparent,
+                                     bool reverseCullFace)
 {
-    RenderObject object(addMesh(std::move(mesh)), shader);
+    RenderObject object(addMesh(std::move(mesh)), shader, isTransparent, reverseCullFace);
     object.transform = transform;
     objects.push_back(object);
 }

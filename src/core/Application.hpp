@@ -34,6 +34,7 @@ private:
     // Shaders
     std::unique_ptr<Shader> munaShader;
     std::unique_ptr<Shader> sunShader;
+    std::unique_ptr<Shader> sunFlareShader;
 
     // Meshes and objects
     std::vector<std::unique_ptr<Mesh>> meshes;
@@ -58,6 +59,8 @@ private:
 
     Mesh *addMesh(std::unique_ptr<Mesh> mesh);
 
-    void loadObjectFromFile(const std::string &path, Shader *shader, const Transform &transform);
-    void loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader, const Transform &transform);
+    void loadObjectFromFile(const std::string &path, Shader *shader, const Transform &transform,
+                            bool isTransparent = false, bool reverseCullFace = false);
+    void loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader, const Transform &transform,
+                            bool isTransparent = false, bool reverseCullFace = false);
 };

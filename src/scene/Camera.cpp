@@ -101,3 +101,13 @@ void Camera::rotate(float yawDelta, float pitchDelta)
     right = glm::normalize(glm::cross(front, worldUp));
     up = glm::normalize(glm::cross(right, front));
 }
+
+void Camera::increaseSpeed(float dt)
+{
+    movementSpeed += 500.0f * dt;
+}
+
+void Camera::decreaseSpeed(float dt)
+{
+    movementSpeed = std::max(0.0f, movementSpeed - 500.0f * dt);
+}

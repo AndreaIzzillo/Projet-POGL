@@ -6,8 +6,7 @@
 #include <unordered_map>
 #include <utility>
 
-std::unique_ptr<Mesh> MeshFactory::createSphere(unsigned int subdivisions,
-                                                   const glm::vec3 &color)
+std::unique_ptr<Mesh> MeshFactory::createSphere(unsigned int subdivisions, const glm::vec3 &color)
 {
     std::vector<Vertex> vertices;
     std::vector<std::array<unsigned int, 3>> faces = { std::array<unsigned int, 3>{ 0, 11, 5 },
