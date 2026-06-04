@@ -22,6 +22,11 @@ constexpr float moonScale = 0.1f;
 constexpr float moonOrbitRadius = 125.0f;
 constexpr float moonOrbitSpeed = 0.50f;
 
+constexpr float dwarfShallowScale = 100.f;
+constexpr float dwarfShallowOrbitRadius = 1200.0f;
+constexpr float dwarfShallowOrbitSpeed = 0.02f;
+constexpr float dwarfShallowSpinSpeed = 0.40f;
+
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
@@ -74,6 +79,15 @@ void Application::loadScene()
     Transform moonTransform;
     moonTransform.scale = glm::vec3(moonScale);
     loadObjectFromFile("assets/muna.glb", munaShader.get(), moonTransform);
+
+    // Dwarf's Shallow
+    dwarfShallowShader =
+        std::make_unique<Shader>("shaders/dwarf_shallow.vert", "shaders/dwarf_shallow.frag");
+    dwarfShallowIndex = objects.size();
+    Transform dwarfShallowTransform;
+    dwarfShallowTransform.scale = glm::vec3(dwarfShallowScale);
+    loadObjectFromMesh(MeshFactory::createSphere(4), dwarfShallowShader.get(),
+                       dwarfShallowTransform);
 
     /* =================== */
     /* Transparent objects */
@@ -162,6 +176,14 @@ void Application::update(float dt)
     Transform &moon = objects[moonIndex].transform;
     moon.position = earthPosition + moonOffset;
     moon.rotation = glm::vec3(0.0f, -moonOrbit, 0.0f);
+
+    float offsetTime = time + 100.f;
+    const float dwarfShallowOrbit = offsetTime * dwarfShallowOrbitSpeed;
+    const glm::vec3 dwarfShallowOffset = dwarfShallowOrbitRadius
+        * glm::vec3(std::cos(dwarfShallowOrbit), 0.0f, std::sin(dwarfShallowOrbit));
+    Transform &dwarfShallow = objects[dwarfShallowIndex].transform;
+    dwarfShallow.position = dwarfShallowOffset;
+    dwarfShallow.rotation = glm::vec3(0.0f, offsetTime * dwarfShallowSpinSpeed, 0.0f);
 }
 
 void Application::render()
