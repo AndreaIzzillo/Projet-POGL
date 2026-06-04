@@ -12,7 +12,7 @@ constexpr float axialTilt = 0.41f; // 23.5 degrés
 
 constexpr float earthRadius = 40.0f;
 constexpr float earthOrbitRadius = 700.0f;
-constexpr float earthOrbitSpeed = 0.001f;
+constexpr float earthOrbitSpeed = 0.01f;
 constexpr float earthSpinSpeed = 0.30f;
 
 constexpr float cloudRadius = 47.5f;
