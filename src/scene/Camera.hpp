@@ -14,6 +14,8 @@ public:
 
     void setAspectRatio(float aspectRatio);
 
+    void setPosition(const glm::vec3 &newPosition);
+    void movePosition(const glm::vec3 &delta);
     void moveForward(float dt);
     void moveBackward(float dt);
     void moveLeft(float dt);

@@ -53,6 +53,8 @@ private:
     std::size_t moonIndex = 0;
     std::size_t dwarfShallowIndex = 0;
 
+    int cameraAttachedTo = -1;
+
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;
     float elapsedTime = 0.0f;

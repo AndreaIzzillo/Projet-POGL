@@ -26,6 +26,16 @@ void Camera::setAspectRatio(float newAspectRatio)
     aspectRatio = newAspectRatio;
 }
 
+void Camera::setPosition(const glm::vec3 &newPosition)
+{
+    position = newPosition;
+}
+
+void Camera::movePosition(const glm::vec3 &delta)
+{
+    position += delta;
+}
+
 void Camera::moveForward(float dt)
 {
     position += front * movementSpeed * dt;
