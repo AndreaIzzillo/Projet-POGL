@@ -2,6 +2,8 @@
 
 in vec3 vViewPosition;
 in vec3 vViewNormal;
+in vec3 vViewCenter;
+in float vFlareRadius;
 in float vTime;
 
 out vec4 FragColor;
@@ -13,11 +15,25 @@ void main() {
     vec3 viewDirection = normalize(-vViewPosition);
 
     float facing = clamp(dot(viewNormal, viewDirection), 0.0, 1.0);
-    float rim = 1.0 - facing;
+    float smoothFacing = pow(facing, 5.0);
 
-    float smoothFacing = pow(facing, 7.0);
+    float cameraDistanceToCenter = length(vViewCenter);
+    
+    vec3 cameraToSun = normalize(vViewCenter);
+    vec3 cameraToFragment = normalize(vViewPosition);
 
-    vec3 center = vec3(0.0, 0.0, 0.0);
+    float sunSide = dot(cameraToSun, cameraToFragment);
+    smoothFacing *= sunSide;
 
-    FragColor = vec4(flareColor, smoothFacing);
+    float transitionWidth = vFlareRadius * 0.2;
+    float insideAmount =
+        1.0 - smoothstep(vFlareRadius - transitionWidth, vFlareRadius, cameraDistanceToCenter);
+    
+    // debug
+    // insideAmount = 0.0;
+    
+    float atmosphereAlpha = 0.2;
+    float alpha = mix(smoothFacing, atmosphereAlpha, insideAmount);
+
+    FragColor = vec4(flareColor, alpha);
 }

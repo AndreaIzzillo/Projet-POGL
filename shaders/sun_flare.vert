@@ -9,16 +9,21 @@ uniform mat4 uView;
 uniform mat4 uProjection;
 uniform float uTime;
 
-out vec3 vViewNormal;
-out vec3 vViewPosition;
-out float vTime;
+out vec3 vViewNormal;   // Normal in view space
+out vec3 vViewPosition; // Position in view space
+out vec3 vViewCenter;   // Center of the sun in view space
+out float vFlareRadius; // Radius of the sun flare in view space
+out float vTime;        // Time for animation
 
 void main() {
     mat3 viewNormalMatrix = transpose(inverse(mat3(uView * uModel)));
     vec4 viewPosition = uView * uModel * vec4(aPosition, 1.0);
+    vec4 viewCenter = uView * uModel * vec4(0.0, 0.0, 0.0, 1.0);
 
     vViewNormal = normalize(viewNormalMatrix * -aNormal);
     vViewPosition = viewPosition.xyz;
+    vViewCenter = viewCenter.xyz;
+    vFlareRadius = length((uModel * vec4(1.0, 0.0, 0.0, 0.0)).xyz);
     vTime = uTime;
 
     gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);

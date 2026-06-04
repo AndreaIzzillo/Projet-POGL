@@ -28,13 +28,13 @@ Application::Application(int &argc, char **argv)
     sunTransform.position = glm::vec3(0.0f, 0.0f, 0.0f);
     sunTransform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
     sunTransform.scale = glm::vec3(200.0f);
-    loadObjectFromMesh(MeshFactory::createSphere(3, glm::vec3(1.0f, 0.5f, 0.0f)), sunShader.get(),
+    loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)), sunShader.get(),
                        sunTransform);
 
     sunFlareShader = std::make_unique<Shader>("shaders/sun_flare.vert", "shaders/sun_flare.frag");
     Transform sunFlareTransform = sunTransform;
-    sunFlareTransform.scale = glm::vec3(400.0f);
-    loadObjectFromMesh(MeshFactory::createSphere(3, glm::vec3(1.0f, 0.5f, 0.0f)),
+    sunFlareTransform.scale = glm::vec3(350.0f);
+    loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
                        sunFlareShader.get(), sunFlareTransform, true, true);
 
     previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
