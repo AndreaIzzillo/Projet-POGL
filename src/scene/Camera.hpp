@@ -8,6 +8,7 @@ public:
     explicit Camera(float aspectRatio);
     ~Camera() = default;
 
+    glm::vec3 getPosition() const;
     glm::mat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix() const;
 

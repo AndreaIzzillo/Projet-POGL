@@ -17,6 +17,16 @@ RenderObject::RenderObject(Mesh *mesh, Shader *shader, bool isTransparent, bool 
     , disableDepthMask(disableDepthMask)
 {}
 
+bool RenderObject::isTransparentObject() const
+{
+    return isTransparent;
+}
+
+float RenderObject::getDistanceToCamera(const Camera &camera) const
+{
+    return glm::length(transform.position - camera.getPosition());
+}
+
 void RenderObject::draw(const Camera &camera, float timeSeconds) const
 {
     if (!mesh || !shader)

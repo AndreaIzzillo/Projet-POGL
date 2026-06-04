@@ -11,7 +11,11 @@ class RenderObject
 {
 public:
     RenderObject(Mesh *mesh, Shader *shader, bool isTransparent = false,
-                 bool reverseCullFace = false, bool disableCulling = false, bool disableDepthMask = false);
+                 bool reverseCullFace = false, bool disableCulling = false,
+                 bool disableDepthMask = false);
+
+    bool isTransparentObject() const;
+    float getDistanceToCamera(const Camera &camera) const;
 
     void draw(const Camera &camera, float timeSeconds) const;
 
@@ -22,7 +26,7 @@ public:
 private:
     Mesh *mesh = nullptr;
     Shader *shader = nullptr;
-    
+
     bool isTransparent = false;
     bool reverseCullFace = false;
     bool disableCulling = false;

@@ -1,10 +1,13 @@
 #include "core/Application.hpp"
 
 #include <GL/freeglut.h>
+#include <algorithm>
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #define ESC 27
 
@@ -192,9 +195,38 @@ void Application::render()
 
     skybox->draw(camera);
 
-    for (const RenderObject &object : objects)
+    std::vector<RenderObject *> opaqueObjects;
+    std::vector<RenderObject *> transparentObjects;
+
+    for (RenderObject &object : objects)
     {
-        object.draw(camera, elapsedTime);
+        if (object.isTransparentObject())
+            transparentObjects.push_back(&object);
+        else
+            opaqueObjects.push_back(&object);
+    }
+
+    auto distanceToCamera = [this](const RenderObject &object) {
+        return object.getDistanceToCamera(camera);
+    };
+
+    std::sort(opaqueObjects.begin(), opaqueObjects.end(),
+              [&distanceToCamera](const RenderObject *a, const RenderObject *b) {
+                  return distanceToCamera(*a) < distanceToCamera(*b);
+              });
+
+    std::sort(transparentObjects.begin(), transparentObjects.end(),
+              [&distanceToCamera](const RenderObject *a, const RenderObject *b) {
+                  return distanceToCamera(*a) > distanceToCamera(*b);
+              });
+
+    for (const RenderObject *object : opaqueObjects)
+    {
+        object->draw(camera, elapsedTime);
+    }
+    for (const RenderObject *object : transparentObjects)
+    {
+        object->draw(camera, elapsedTime);
     }
 
     window.swapBuffers();
@@ -275,7 +307,8 @@ Mesh *Application::addMesh(std::unique_ptr<Mesh> mesh)
 
 void Application::loadObjectFromFile(const std::string &path, Shader *shader,
                                      const Transform &transform, bool isTransparent,
-                                     bool reverseCullFace, bool disableCulling, bool disableDepthMask)
+                                     bool reverseCullFace, bool disableCulling,
+                                     bool disableDepthMask)
 {
     std::vector<std::unique_ptr<Mesh>> loadedMeshes = GltfLoader::load(path);
 
@@ -283,7 +316,8 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
     {
         Mesh *mesh = addMesh(std::move(loadedMesh));
 
-        RenderObject object(mesh, shader, isTransparent, reverseCullFace, disableCulling, disableDepthMask);
+        RenderObject object(mesh, shader, isTransparent, reverseCullFace, disableCulling,
+                            disableDepthMask);
         object.transform = transform;
 
         objects.push_back(object);
@@ -292,7 +326,8 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
 
 void Application::loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader,
                                      const Transform &transform, bool isTransparent,
-                                     bool reverseCullFace, bool disableCulling, bool disableDepthMask)
+                                     bool reverseCullFace, bool disableCulling,
+                                     bool disableDepthMask)
 {
     RenderObject object(addMesh(std::move(mesh)), shader, isTransparent, reverseCullFace,
                         disableCulling, disableDepthMask);
