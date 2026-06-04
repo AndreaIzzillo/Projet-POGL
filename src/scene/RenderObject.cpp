@@ -8,36 +8,28 @@ void RenderObject::setSunPosition(const glm::vec3 &position)
 }
 
 RenderObject::RenderObject(Mesh *mesh, Shader *shader, bool isTransparent, bool reverseCullFace,
-                           bool disableCulling)
+                           bool disableCulling, bool disableDepthMask)
     : mesh(mesh)
     , shader(shader)
     , isTransparent(isTransparent)
     , reverseCullFace(reverseCullFace)
     , disableCulling(disableCulling)
+    , disableDepthMask(disableDepthMask)
 {}
 
 void RenderObject::draw(const Camera &camera, float timeSeconds) const
 {
     if (!mesh || !shader)
-    {
         return;
-    }
 
     if (isTransparent)
-    {
         glEnable(GL_BLEND);
-        glDepthMask(GL_FALSE);
-    }
-
     if (reverseCullFace)
-    {
         glCullFace(GL_FRONT);
-    }
-
     if (disableCulling)
-    {
         glDisable(GL_CULL_FACE);
-    }
+    if (disableDepthMask)
+        glDepthMask(GL_FALSE);
 
     shader->use();
 
@@ -51,17 +43,11 @@ void RenderObject::draw(const Camera &camera, float timeSeconds) const
     mesh->draw();
 
     if (isTransparent)
-    {
         glDisable(GL_BLEND);
-        glDepthMask(GL_TRUE);
-    }
     if (reverseCullFace)
-    {
         glCullFace(GL_BACK);
-    }
-
     if (disableCulling)
-    {
         glEnable(GL_CULL_FACE);
-    }
+    if (disableDepthMask)
+        glDepthMask(GL_TRUE);
 }

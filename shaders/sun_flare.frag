@@ -4,7 +4,6 @@ in vec3 vViewPosition;
 in vec3 vViewNormal;
 in vec3 vViewCenter;
 in float vFlareRadius;
-in float vTime;
 
 out vec4 FragColor;
 

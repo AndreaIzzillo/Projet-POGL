@@ -76,8 +76,8 @@ private:
 
     void loadObjectFromFile(const std::string &path, Shader *shader, const Transform &transform,
                             bool isTransparent = false, bool reverseCullFace = false,
-                            bool disableCulling = false);
+                            bool disableCulling = false, bool disableDepthMask = false);
     void loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader, const Transform &transform,
                             bool isTransparent = false, bool reverseCullFace = false,
-                            bool disableCulling = false);
+                            bool disableCulling = false, bool disableDepthMask = false);
 };

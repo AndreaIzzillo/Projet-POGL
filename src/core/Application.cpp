@@ -22,15 +22,15 @@ constexpr float moonScale = 0.1f;
 constexpr float moonOrbitRadius = 125.0f;
 constexpr float moonOrbitSpeed = 0.50f;
 
-constexpr float dwarfShallowScale = 100.f;
+constexpr float dwarfShallowScale = 80.f;
 constexpr float dwarfShallowOrbitRadius = 1200.0f;
 constexpr float dwarfShallowOrbitSpeed = 0.02f;
-constexpr float dwarfShallowSpinSpeed = 0.40f;
+constexpr float dwarfShallowSpinSpeed = 0.10f;
 
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
-    : window(argc, argv, 1600 * 2, 1000 * 2, "Projet POGL")
+    : window(argc, argv, 1600, 900, "Projet POGL")
     , camera(static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight()))
 {
     instance = this;
@@ -80,15 +80,6 @@ void Application::loadScene()
     moonTransform.scale = glm::vec3(moonScale);
     loadObjectFromFile("assets/muna.glb", munaShader.get(), moonTransform);
 
-    // Dwarf's Shallow
-    dwarfShallowShader =
-        std::make_unique<Shader>("shaders/dwarf_shallow.vert", "shaders/dwarf_shallow.frag");
-    dwarfShallowIndex = objects.size();
-    Transform dwarfShallowTransform;
-    dwarfShallowTransform.scale = glm::vec3(dwarfShallowScale);
-    loadObjectFromMesh(MeshFactory::createSphere(4), dwarfShallowShader.get(),
-                       dwarfShallowTransform);
-
     /* =================== */
     /* Transparent objects */
     /* =================== */
@@ -98,7 +89,7 @@ void Application::loadScene()
     Transform sunFlareTransform = sunTransform;
     sunFlareTransform.scale = glm::vec3(350.0f);
     loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
-                       sunFlareShader.get(), sunFlareTransform, true, true);
+                       sunFlareShader.get(), sunFlareTransform, true, true, false, true);
 
     // The clouds
     cloudsShader = std::make_unique<Shader>("shaders/earth.vert", "shaders/clouds.frag");
@@ -106,7 +97,7 @@ void Application::loadScene()
     Transform cloudsTransform;
     cloudsTransform.scale = glm::vec3(cloudRadius);
     loadObjectFromMesh(MeshFactory::createSphere(4), cloudsShader.get(), cloudsTransform, true,
-                       false, true);
+                       false, true, true);
 
     // The Earth's atmosphere
     earthAtmoShader =
@@ -115,7 +106,16 @@ void Application::loadScene()
     earthAtmoIndex = objects.size();
     earthAtmoTransform.scale = glm::vec3(earthRadius * 1.8f);
     loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
-                       earthAtmoShader.get(), earthAtmoTransform, true, true);
+                       earthAtmoShader.get(), earthAtmoTransform, true, true, false, true);
+
+    // Dwarf's Shallow
+    dwarfShallowShader =
+        std::make_unique<Shader>("shaders/dwarf_shallow.vert", "shaders/dwarf_shallow.frag");
+    dwarfShallowIndex = objects.size();
+    Transform dwarfShallowTransform;
+    dwarfShallowTransform.scale = glm::vec3(dwarfShallowScale);
+    loadObjectFromMesh(MeshFactory::createSphere(6), dwarfShallowShader.get(),
+                       dwarfShallowTransform, true, false, false, false);
 }
 
 void Application::run()
@@ -275,7 +275,7 @@ Mesh *Application::addMesh(std::unique_ptr<Mesh> mesh)
 
 void Application::loadObjectFromFile(const std::string &path, Shader *shader,
                                      const Transform &transform, bool isTransparent,
-                                     bool reverseCullFace, bool disableCulling)
+                                     bool reverseCullFace, bool disableCulling, bool disableDepthMask)
 {
     std::vector<std::unique_ptr<Mesh>> loadedMeshes = GltfLoader::load(path);
 
@@ -283,7 +283,7 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
     {
         Mesh *mesh = addMesh(std::move(loadedMesh));
 
-        RenderObject object(mesh, shader, isTransparent, reverseCullFace, disableCulling);
+        RenderObject object(mesh, shader, isTransparent, reverseCullFace, disableCulling, disableDepthMask);
         object.transform = transform;
 
         objects.push_back(object);
@@ -292,10 +292,10 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
 
 void Application::loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader,
                                      const Transform &transform, bool isTransparent,
-                                     bool reverseCullFace, bool disableCulling)
+                                     bool reverseCullFace, bool disableCulling, bool disableDepthMask)
 {
     RenderObject object(addMesh(std::move(mesh)), shader, isTransparent, reverseCullFace,
-                        disableCulling);
+                        disableCulling, disableDepthMask);
     object.transform = transform;
     objects.push_back(object);
 }
