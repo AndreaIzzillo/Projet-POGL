@@ -1,11 +1,12 @@
 #version 430
 
-in vec3 vLocalPosition;
+in vec3 vLocalNormal;
 in vec3 vViewPosition;
 in vec3 vViewNormal;
 
 uniform mat4 uView;
 uniform vec3 uSunPosition;
+uniform float uTime;
 
 out vec4 FragColor;
 
@@ -48,24 +49,24 @@ float fbm(vec3 p) {
     return sum;
 }
 
-float toon(float value, float steps) {
-    return clamp(floor(clamp(value, 0.0, 1.0) * steps) / (steps - 1.0), 0.0, 1.0);
-}
-
 void main() {
-    vec3 surface = normalize(vLocalPosition);
+    vec3 surface = normalize(vLocalNormal);
 
-    float maria = smoothstep(0.45, 0.55, fbm(surface * 2.0 + vec3(5.0)));
-    float craters = fbm(surface * 7.0);
-    vec3 color = mix(vec3(0.60, 0.60, 0.62), vec3(0.32, 0.32, 0.35), maria);
-    color *= 0.82 + 0.30 * craters;
+    float coverage = fbm(surface * 2.6 + vec3(0.0, uTime * 0.01, 0.0));
+    float density = smoothstep(0.52, 0.70, coverage);
+
+    if (density < 0.01) {
+        discard;
+    }
 
     vec3 normal = normalize(vViewNormal);
     vec3 sunViewPosition = (uView * vec4(uSunPosition, 1.0)).xyz;
     vec3 lightDirection = normalize(sunViewPosition - vViewPosition);
 
-    float diffuse = max(dot(normal, lightDirection), 0.0);
-    color *= mix(0.06, 1.0, toon(diffuse, 4.0));
+    float ndl = dot(normal, lightDirection);
+    float light = clamp(ndl * 0.5 + 0.5, 0.0, 1.0);
+    light *= light;
+    vec3 color = mix(vec3(0.45, 0.48, 0.55), vec3(1.0), light);
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, density * (0.25 + 0.75 * light));
 }

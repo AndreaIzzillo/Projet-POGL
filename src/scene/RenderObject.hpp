@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "graphics/Mesh.hpp"
 #include "graphics/Shader.hpp"
 #include "scene/Camera.hpp"
@@ -9,9 +11,11 @@ class RenderObject
 {
 public:
     RenderObject(Mesh *mesh, Shader *shader, bool isTransparent = false,
-                 bool reverseCullFace = false);
+                 bool reverseCullFace = false, bool disableCulling = false);
 
     void draw(const Camera &camera, float timeSeconds) const;
+
+    static void setSunPosition(const glm::vec3 &sunPosition);
 
     Transform transform;
 
@@ -20,4 +24,7 @@ private:
     Shader *shader = nullptr;
     bool isTransparent = false;
     bool reverseCullFace = false;
+    bool disableCulling = false;
+
+    static glm::vec3 sunPosition;
 };

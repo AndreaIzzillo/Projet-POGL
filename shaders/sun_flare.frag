@@ -22,7 +22,7 @@ void main() {
     vec3 cameraToSun = normalize(vViewCenter);
     vec3 cameraToFragment = normalize(vViewPosition);
 
-    float sunSide = dot(cameraToSun, cameraToFragment);
+    float sunSide = clamp(dot(cameraToSun, cameraToFragment), 0.0, 1.0);
     smoothFacing *= sunSide;
 
     float transitionWidth = vFlareRadius * 0.2;

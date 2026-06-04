@@ -36,11 +36,20 @@ private:
     std::unique_ptr<Shader> munaShader;
     std::unique_ptr<Shader> sunShader;
     std::unique_ptr<Shader> sunFlareShader;
+    std::unique_ptr<Shader> earthShader;
+    std::unique_ptr<Shader> earthAtmoShader;
+    std::unique_ptr<Shader> cloudsShader;
 
     // Meshes and objects
     std::vector<std::unique_ptr<Mesh>> meshes;
     std::vector<RenderObject> objects;
     std::unique_ptr<Skybox> skybox;
+
+    // Animated celestial bodies (indices into objects)
+    std::size_t earthIndex = 0;
+    std::size_t earthAtmoIndex = 0;
+    std::size_t cloudsIndex = 0;
+    std::size_t moonIndex = 0;
 
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;
@@ -64,7 +73,9 @@ private:
     Mesh *addMesh(std::unique_ptr<Mesh> mesh);
 
     void loadObjectFromFile(const std::string &path, Shader *shader, const Transform &transform,
-                            bool isTransparent = false, bool reverseCullFace = false);
+                            bool isTransparent = false, bool reverseCullFace = false,
+                            bool disableCulling = false);
     void loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader, const Transform &transform,
-                            bool isTransparent = false, bool reverseCullFace = false);
+                            bool isTransparent = false, bool reverseCullFace = false,
+                            bool disableCulling = false);
 };
