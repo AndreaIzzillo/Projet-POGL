@@ -14,8 +14,24 @@ Application::Application(int &argc, char **argv)
     , camera(static_cast<float>(window.getWidth()) / static_cast<float>(window.getHeight()))
 {
     instance = this;
-
     renderer.init();
+
+    loadScene();
+
+    previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
+    glutDisplayFunc(Application::displayCallback);
+    glutIdleFunc(Application::idleCallback);
+    glutKeyboardFunc(Application::keyboardDownCallback);
+    glutKeyboardUpFunc(Application::keyboardUpCallback);
+    glutMouseFunc(Application::mouseButtonCallback);
+    glutMotionFunc(Application::mouseMotionCallback);
+}
+
+void Application::loadScene()
+{
+    /* ============== */
+    /* Opaque objects */
+    /* ============== */
 
     // Skybox
     skybox = std::make_unique<Skybox>(std::array<std::string, 6>{
@@ -31,20 +47,16 @@ Application::Application(int &argc, char **argv)
     loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)), sunShader.get(),
                        sunTransform);
 
+    /* =================== */
+    /* Transparent objects */
+    /* =================== */
+
+    // The Sun Flare
     sunFlareShader = std::make_unique<Shader>("shaders/sun_flare.vert", "shaders/sun_flare.frag");
     Transform sunFlareTransform = sunTransform;
     sunFlareTransform.scale = glm::vec3(350.0f);
     loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
                        sunFlareShader.get(), sunFlareTransform, true, true);
-
-    previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
-
-    glutDisplayFunc(Application::displayCallback);
-    glutIdleFunc(Application::idleCallback);
-    glutKeyboardFunc(Application::keyboardDownCallback);
-    glutKeyboardUpFunc(Application::keyboardUpCallback);
-    glutMouseFunc(Application::mouseButtonCallback);
-    glutMotionFunc(Application::mouseMotionCallback);
 }
 
 void Application::run()

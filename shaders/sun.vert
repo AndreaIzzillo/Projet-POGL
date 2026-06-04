@@ -9,11 +9,11 @@ uniform mat4 uView;
 uniform mat4 uProjection;
 uniform float uTime;
 
-out vec3 vLocalPosition;
-out vec3 vLocalNormal;
-out vec3 vViewPosition;
-out vec3 vViewNormal;
-out vec3 vColor;
+out vec3 vLocalPosition; // Position in local space
+out vec3 vLocalNormal;   // Normal in local space
+out vec3 vViewPosition;  // Position in view space
+out vec3 vViewNormal;    // Normal in view space
+out vec3 vColor;         // Color from vertex attributes
 
 void main() {
     vec4 worldPosition = uModel * vec4(aPosition, 1.0);

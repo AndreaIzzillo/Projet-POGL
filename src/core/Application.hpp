@@ -52,6 +52,8 @@ private:
 
     static Application *instance;
 
+    void loadScene();
+
     static void displayCallback();
     static void idleCallback();
     static void keyboardDownCallback(unsigned char key, int x, int y);
