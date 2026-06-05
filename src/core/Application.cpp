@@ -11,8 +11,7 @@
 
 #define ESC 27
 
-constexpr float axialTilt = 0.41f; // 23.5 degrés
-
+constexpr float earthAxialTilt = 0.41f; // 23.5 degrés
 constexpr float earthRadius = 40.0f;
 constexpr float earthOrbitRadius = 700.0f;
 constexpr float earthOrbitSpeed = 0.08f;
@@ -52,9 +51,29 @@ Application::Application(int &argc, char **argv)
 
 void Application::loadScene()
 {
-    /* ============== */
-    /* Opaque objects */
-    /* ============== */
+    RenderObject::StateFunc resetState = []() {
+        glCullFace(GL_BACK);
+        glEnable(GL_CULL_FACE);
+        glDepthMask(GL_TRUE);
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    };
+
+    RenderObject::StateFunc atmoState = []() {
+        glCullFace(GL_FRONT);
+        glEnable(GL_BLEND);
+    };
+
+    RenderObject::StateFunc cloudsState = []() {
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glDepthMask(GL_FALSE);
+    };
+
+    RenderObject::StateFunc dwarfShallowState = []() {
+        glEnable(GL_BLEND);
+    };
 
     // Skybox
     skybox = std::make_unique<Skybox>(std::array<std::string, 6>{
@@ -63,62 +82,75 @@ void Application::loadScene()
 
     // The Sun
     sunShader = std::make_unique<Shader>("shaders/sun.vert", "shaders/sun.frag");
+
     Transform sunTransform;
     sunTransform.scale = glm::vec3(200.0f);
+
     loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)), sunShader.get(),
-                       sunTransform);
+                       sunTransform, false, resetState, resetState);
+
     RenderObject::setSunPosition(sunTransform.position);
+
+    // The Sun Flare
+    sunFlareShader = std::make_unique<Shader>("shaders/sun_flare.vert", "shaders/sun_flare.frag");
+
+    Transform sunFlareTransform = sunTransform;
+    sunFlareTransform.scale = glm::vec3(350.0f);
+
+    loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
+                       sunFlareShader.get(), sunFlareTransform, true, atmoState, resetState);
 
     // The Earth
     earthShader = std::make_unique<Shader>("shaders/earth.vert", "shaders/earth.frag");
     earthIndex = objects.size();
+
     Transform earthTransform;
     earthTransform.scale = glm::vec3(earthRadius);
-    loadObjectFromMesh(MeshFactory::createSphere(4), earthShader.get(), earthTransform);
 
-    // The Moon
-    munaShader = std::make_unique<Shader>("shaders/muna.vert", "shaders/muna.frag");
-    moonIndex = objects.size();
-    Transform moonTransform;
-    moonTransform.scale = glm::vec3(moonScale);
-    loadObjectFromFile("assets/muna.glb", munaShader.get(), moonTransform);
-
-    /* =================== */
-    /* Transparent objects */
-    /* =================== */
-
-    // The Sun Flare
-    sunFlareShader = std::make_unique<Shader>("shaders/sun_flare.vert", "shaders/sun_flare.frag");
-    Transform sunFlareTransform = sunTransform;
-    sunFlareTransform.scale = glm::vec3(350.0f);
-    loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
-                       sunFlareShader.get(), sunFlareTransform, true, true, false, true);
+    loadObjectFromMesh(MeshFactory::createSphere(4), earthShader.get(), earthTransform, false,
+                       resetState, resetState);
 
     // The clouds
     cloudsShader = std::make_unique<Shader>("shaders/earth.vert", "shaders/clouds.frag");
     cloudsIndex = objects.size();
+
     Transform cloudsTransform;
     cloudsTransform.scale = glm::vec3(cloudRadius);
+
     loadObjectFromMesh(MeshFactory::createSphere(4), cloudsShader.get(), cloudsTransform, true,
-                       false, true, true);
+                       cloudsState, resetState);
 
     // The Earth's atmosphere
     earthAtmoShader =
         std::make_unique<Shader>("shaders/earth_atmo.vert", "shaders/earth_atmo.frag");
-    Transform earthAtmoTransform = earthTransform;
     earthAtmoIndex = objects.size();
+
+    Transform earthAtmoTransform = earthTransform;
     earthAtmoTransform.scale = glm::vec3(earthRadius * 1.8f);
+
     loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
-                       earthAtmoShader.get(), earthAtmoTransform, true, true, false, true);
+                       earthAtmoShader.get(), earthAtmoTransform, true, atmoState, resetState);
+
+    // The Moon
+    munaShader = std::make_unique<Shader>("shaders/muna.vert", "shaders/muna.frag");
+    moonIndex = objects.size();
+
+    Transform moonTransform;
+    moonTransform.scale = glm::vec3(moonScale);
+
+    loadObjectFromFile("assets/muna.glb", munaShader.get(), moonTransform, false, resetState,
+                       resetState);
 
     // Dwarf's Shallow
     dwarfShallowShader =
         std::make_unique<Shader>("shaders/dwarf_shallow.vert", "shaders/dwarf_shallow.frag");
     dwarfShallowIndex = objects.size();
+
     Transform dwarfShallowTransform;
     dwarfShallowTransform.scale = glm::vec3(dwarfShallowScale);
+
     loadObjectFromMesh(MeshFactory::createSphere(6), dwarfShallowShader.get(),
-                       dwarfShallowTransform, true, false, false, false);
+                       dwarfShallowTransform, true, dwarfShallowState, resetState);
 }
 
 void Application::run()
@@ -169,14 +201,14 @@ void Application::update(float dt)
     Transform &earth = objects[earthIndex].transform;
     const glm::vec3 earthOffset = earthPosition - earth.position;
     earth.position = earthPosition;
-    earth.rotation = glm::vec3(axialTilt, time * earthSpinSpeed, 0.0f);
+    earth.rotation = glm::vec3(earthAxialTilt, time * earthSpinSpeed, 0.0f);
 
     Transform &earthAtmo = objects[earthAtmoIndex].transform;
     earthAtmo.position = earthPosition;
 
     Transform &clouds = objects[cloudsIndex].transform;
     clouds.position = earthPosition;
-    clouds.rotation = glm::vec3(axialTilt, time * cloudSpinSpeed, 0.0f);
+    clouds.rotation = glm::vec3(earthAxialTilt, time * cloudSpinSpeed, 0.0f);
 
     const float moonOrbit = time * moonOrbitSpeed;
     const glm::vec3 moonOffset =
@@ -318,8 +350,8 @@ Mesh *Application::addMesh(std::unique_ptr<Mesh> mesh)
 
 void Application::loadObjectFromFile(const std::string &path, Shader *shader,
                                      const Transform &transform, bool isTransparent,
-                                     bool reverseCullFace, bool disableCulling,
-                                     bool disableDepthMask)
+                                     RenderObject::StateFunc beforeDrawFunc,
+                                     RenderObject::StateFunc afterDrawFunc)
 {
     std::vector<std::unique_ptr<Mesh>> loadedMeshes = GltfLoader::load(path);
 
@@ -327,9 +359,11 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
     {
         Mesh *mesh = addMesh(std::move(loadedMesh));
 
-        RenderObject object(mesh, shader, isTransparent, reverseCullFace, disableCulling,
-                            disableDepthMask);
+        RenderObject object(mesh, shader, isTransparent);
         object.transform = transform;
+
+        object.setBeforeDraw(beforeDrawFunc);
+        object.setAfterDraw(afterDrawFunc);
 
         objects.push_back(object);
     }
@@ -337,11 +371,14 @@ void Application::loadObjectFromFile(const std::string &path, Shader *shader,
 
 void Application::loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader,
                                      const Transform &transform, bool isTransparent,
-                                     bool reverseCullFace, bool disableCulling,
-                                     bool disableDepthMask)
+                                     RenderObject::StateFunc beforeDrawFunc,
+                                     RenderObject::StateFunc afterDrawFunc)
 {
-    RenderObject object(addMesh(std::move(mesh)), shader, isTransparent, reverseCullFace,
-                        disableCulling, disableDepthMask);
+    RenderObject object(addMesh(std::move(mesh)), shader, isTransparent);
     object.transform = transform;
+
+    object.setBeforeDraw(beforeDrawFunc);
+    object.setAfterDraw(afterDrawFunc);
+
     objects.push_back(object);
 }

@@ -7,14 +7,10 @@ void RenderObject::setSunPosition(const glm::vec3 &position)
     sunPosition = position;
 }
 
-RenderObject::RenderObject(Mesh *mesh, Shader *shader, bool isTransparent, bool reverseCullFace,
-                           bool disableCulling, bool disableDepthMask)
+RenderObject::RenderObject(Mesh *mesh, Shader *shader, bool isTransparent)
     : mesh(mesh)
     , shader(shader)
     , isTransparent(isTransparent)
-    , reverseCullFace(reverseCullFace)
-    , disableCulling(disableCulling)
-    , disableDepthMask(disableDepthMask)
 {}
 
 bool RenderObject::isTransparentObject() const
@@ -27,19 +23,20 @@ float RenderObject::getDistanceToCamera(const Camera &camera) const
     return glm::length(transform.position - camera.getPosition());
 }
 
+void RenderObject::setBeforeDraw(StateFunc beforeDrawFunc)
+{
+    beforeDraw = beforeDrawFunc;
+}
+
+void RenderObject::setAfterDraw(StateFunc afterDrawFunc)
+{
+    afterDraw = afterDrawFunc;
+}
+
 void RenderObject::draw(const Camera &camera, float timeSeconds) const
 {
     if (!mesh || !shader)
         return;
-
-    if (isTransparent)
-        glEnable(GL_BLEND);
-    if (reverseCullFace)
-        glCullFace(GL_FRONT);
-    if (disableCulling)
-        glDisable(GL_CULL_FACE);
-    if (disableDepthMask)
-        glDepthMask(GL_FALSE);
 
     shader->use();
 
@@ -50,14 +47,11 @@ void RenderObject::draw(const Camera &camera, float timeSeconds) const
     shader->setVec3("uSunPosition", sunPosition);
     shader->setFloat("uTime", timeSeconds);
 
+    if (beforeDraw)
+        beforeDraw();
+
     mesh->draw();
 
-    if (isTransparent)
-        glDisable(GL_BLEND);
-    if (reverseCullFace)
-        glCullFace(GL_BACK);
-    if (disableCulling)
-        glEnable(GL_CULL_FACE);
-    if (disableDepthMask)
-        glDepthMask(GL_TRUE);
+    if (afterDraw)
+        afterDraw();
 }

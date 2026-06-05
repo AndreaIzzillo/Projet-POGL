@@ -77,9 +77,11 @@ private:
     Mesh *addMesh(std::unique_ptr<Mesh> mesh);
 
     void loadObjectFromFile(const std::string &path, Shader *shader, const Transform &transform,
-                            bool isTransparent = false, bool reverseCullFace = false,
-                            bool disableCulling = false, bool disableDepthMask = false);
+                            bool isTransparent = false,
+                            RenderObject::StateFunc beforeDrawFunc = nullptr,
+                            RenderObject::StateFunc afterDrawFunc = nullptr);
     void loadObjectFromMesh(std::unique_ptr<Mesh> mesh, Shader *shader, const Transform &transform,
-                            bool isTransparent = false, bool reverseCullFace = false,
-                            bool disableCulling = false, bool disableDepthMask = false);
+                            bool isTransparent = false,
+                            RenderObject::StateFunc beforeDrawFunc = nullptr,
+                            RenderObject::StateFunc afterDrawFunc = nullptr);
 };
