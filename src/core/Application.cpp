@@ -9,6 +9,15 @@
 #include <memory>
 #include <vector>
 
+#define RED glm::vec3(1.0f, 0.0f, 0.0f)
+#define GREEN glm::vec3(0.0f, 1.0f, 0.0f)
+#define BLUE glm::vec3(0.0f, 0.0f, 1.0f)
+#define CYAN glm::vec3(0.0f, 1.0f, 1.0f)
+#define MAGENTA glm::vec3(1.0f, 0.0f, 1.0f)
+#define YELLOW glm::vec3(1.0f, 1.0f, 0.0f)
+#define WHITE glm::vec3(1.0f, 1.0f, 1.0f)
+#define BLACK glm::vec3(0.0f, 0.0f, 0.0f)
+
 #define ESC 27
 
 constexpr float earthAxialTilt = 0.41f; // 23.5 degrés
@@ -28,6 +37,12 @@ constexpr float dwarfShallowScale = 80.f;
 constexpr float dwarfShallowOrbitRadius = 1200.0f;
 constexpr float dwarfShallowOrbitSpeed = 0.1f;
 constexpr float dwarfShallowSpinSpeed = 0.10f;
+
+constexpr float ezakiSixAxialTilt = 0.1f;
+constexpr float ezakiSixScale = 100.f;
+constexpr float ezakiSixOrbitRadius = 1900.0f;
+constexpr float ezakiSixOrbitSpeed = 0.15f;
+constexpr float ezakiSixSpinSpeed = 0.05f;
 
 Application *Application::instance = nullptr;
 
@@ -149,6 +164,16 @@ void Application::loadScene()
 
     loadObjectFromMesh(MeshFactory::createSphere(6), dwarfShallowShader.get(),
                        dwarfShallowTransform, true, blendState, resetState);
+
+    // Ezaki Six
+    ezakiSixShader = std::make_unique<Shader>("shaders/ezaki_six.vert", "shaders/ezaki_six.frag");
+    ezakiSixIndex = objects.size();
+
+    Transform ezakiSixTransform;
+    ezakiSixTransform.scale = glm::vec3(ezakiSixScale);
+
+    loadObjectFromMesh(MeshFactory::createSphere(4), ezakiSixShader.get(), ezakiSixTransform, true,
+                       blendState, resetState);
 }
 
 void Application::run()
@@ -190,6 +215,8 @@ void Application::update(float dt)
         cameraAttachedTo = earthIndex;
     if (keys['2'])
         cameraAttachedTo = dwarfShallowIndex;
+    if (keys['3'])
+        cameraAttachedTo = ezakiSixIndex;
 
     const float time = elapsedTime;
 
@@ -228,11 +255,23 @@ void Application::update(float dt)
     dwarfShallow.position = dwarfShallowPosition;
     dwarfShallow.rotation = glm::vec3(0.0f, offsetTime * dwarfShallowSpinSpeed, 0.0f);
 
+    // Ezaki Six
+    offsetTime = time + 500.f;
+    const float ezakiSixOrbit = offsetTime * ezakiSixOrbitSpeed;
+    const glm::vec3 ezakiSixPosition =
+        ezakiSixOrbitRadius * glm::vec3(std::cos(ezakiSixOrbit), 0.0f, std::sin(ezakiSixOrbit));
+    Transform &ezakiSix = objects[ezakiSixIndex].transform;
+    const glm::vec3 ezakiSixOffset = ezakiSixPosition - ezakiSix.position;
+    ezakiSix.position = ezakiSixPosition;
+    ezakiSix.rotation = glm::vec3(ezakiSixAxialTilt, offsetTime * ezakiSixSpinSpeed, 0.0f);
+
     // Camera attachment
     if (cameraAttachedTo == earthIndex)
         camera.movePosition(earthOffset);
     else if (cameraAttachedTo == dwarfShallowIndex)
         camera.movePosition(dwarfShallowOffset);
+    else if (cameraAttachedTo == ezakiSixIndex)
+        camera.movePosition(ezakiSixOffset);
 }
 
 void Application::render()
