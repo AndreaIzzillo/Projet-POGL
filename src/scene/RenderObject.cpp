@@ -46,7 +46,7 @@ void RenderObject::draw(const Camera &camera, float timeSeconds) const
     shader->setMat4("uModel", transform.getMatrix());
     shader->setMat4("uView", camera.getViewMatrix());
     shader->setMat4("uProjection", camera.getProjectionMatrix());
-    shader->setVec3("uCameraPosition", camera.getViewMatrix()[3]);
+    shader->setVec3("uCameraPosition", camera.getPosition());
     shader->setVec3("uSunPosition", sunPosition);
     shader->setFloat("uTime", timeSeconds);
 

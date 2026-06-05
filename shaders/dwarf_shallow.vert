@@ -13,6 +13,7 @@ out vec3 vLocalPosition;
 out vec3 vViewPosition;
 out vec3 vWorldPosition;
 out vec3 vViewNormal;
+out vec3 vWorldNormal;
 out vec3 vViewCenter;
 
 float random(vec3 p) {
@@ -48,17 +49,20 @@ void main() {
     vec3 normal = aNormal;
 
     vec3 seed = position + uTime * 0.03;
-    const float waveIntensity = 10.0;
+    const float waveIntensity = 8.0;
+    const float waveHeight = 0.08;
     float noise = valueNoise(seed * waveIntensity);
-    noise *= 0.1;
+    noise *= waveHeight;
 
     position += normal * noise;
     
-    mat3 normalMatrix = transpose(inverse(mat3(uView * uModel)));
+    mat3 viewNormalMatrix = transpose(inverse(mat3(uView * uModel)));
+    mat3 worldNormalMatrix = transpose(inverse(mat3(uModel)));
     vLocalPosition = position;
     vViewPosition = (uView * uModel * vec4(position, 1.0)).xyz;
     vWorldPosition = (uModel * vec4(position, 1.0)).xyz;
-    vViewNormal = normalize(normalMatrix * normal);
+    vViewNormal = normalize(viewNormalMatrix * normal);
+    vWorldNormal = normalize(worldNormalMatrix * normal);
     vViewCenter = (uView * uModel * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
 
     gl_Position = uProjection * uView * uModel * vec4(position, 1.0);

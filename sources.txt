@@ -1,2 +1,8 @@
+Skybox, Cubemap
 https://learnopengl.com/Advanced-OpenGL/Cubemaps
+
+Value noise 3D
 https://iquilezles.org/articles/morenoise/
+
+Fractal Brownian Motion
+https://thebookofshaders.com/13/

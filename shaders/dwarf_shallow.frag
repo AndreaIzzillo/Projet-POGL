@@ -4,6 +4,7 @@ in vec3 vLocalPosition;
 in vec3 vViewPosition;
 in vec3 vWorldPosition;
 in vec3 vViewNormal;
+in vec3 vWorldNormal;
 in vec3 vViewCenter;
 
 uniform mat4 uView;
@@ -94,9 +95,16 @@ void main() {
     // Shimmering effect
     waterRim = pow(waterRim, 5.0);
     float waveShimmer = mix(0.0, 0.5, waterRim);
-    float waveLight = mix(0.2, 1.0, lightContribution);
+    float waveLight = mix(0.4, 1.0, lightContribution);
     vec3 shimmerColor = vec3(1.0) * waveShimmer * waveLight;
     color += shimmerColor;
+
+    // Pearly effect
+    float pearlNoise = valueNoise(waterNormal * 6.0);
+    float distance = length(vViewPosition);
+    float pearlIntensity = pow(lightContribution, 4.0) * (1.0 - smoothstep(100.0, 300.0, distance));
+    if (pearlNoise > 0.90)
+        color += vec3(1.0) * pearlIntensity;
     
     // Sun contribution
     color *= mix(0.3, 1.0, lightContribution);
