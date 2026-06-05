@@ -164,6 +164,17 @@ void Application::loadScene()
 
     loadObjectFromMesh(MeshFactory::createSphere(6), dwarfShallowShader.get(),
                        dwarfShallowTransform, true, blendState, resetState);
+    // Ezaki Ring
+    ezakiRingShader =
+        std::make_unique<Shader>("shaders/ezaki_ring.vert", "shaders/ezaki_ring.frag");
+    ezakiRingIndex = objects.size();
+
+    Transform ezakiRingTransform;
+    ezakiRingTransform.scale = glm::vec3(ezakiSixScale * 2.5f);
+    ezakiRingTransform.rotation = glm::vec3(glm::half_pi<float>() - 0.2f, 0.0f, 0.0f);
+
+    loadObjectFromMesh(MeshFactory::createDisk(64), ezakiRingShader.get(), ezakiRingTransform, true,
+                       blendState, resetState);
 
     // Ezaki Six
     ezakiSixShader = std::make_unique<Shader>("shaders/ezaki_six.vert", "shaders/ezaki_six.frag");
@@ -264,6 +275,10 @@ void Application::update(float dt)
     const glm::vec3 ezakiSixOffset = ezakiSixPosition - ezakiSix.position;
     ezakiSix.position = ezakiSixPosition;
     ezakiSix.rotation = glm::vec3(ezakiSixAxialTilt, offsetTime * ezakiSixSpinSpeed, 0.0f);
+
+    // Ezaki Ring
+    Transform &ezakiRing = objects[ezakiRingIndex].transform;
+    ezakiRing.position = ezakiSixPosition;
 
     // Camera attachment
     if (cameraAttachedTo == earthIndex)

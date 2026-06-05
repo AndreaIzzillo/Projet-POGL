@@ -41,6 +41,7 @@ private:
     std::unique_ptr<Shader> cloudsShader;
     std::unique_ptr<Shader> dwarfShallowShader;
     std::unique_ptr<Shader> ezakiSixShader;
+    std::unique_ptr<Shader> ezakiRingShader;
 
     // Meshes and objects
     std::vector<std::unique_ptr<Mesh>> meshes;
@@ -54,6 +55,7 @@ private:
     std::size_t moonIndex = 0;
     std::size_t dwarfShallowIndex = 0;
     std::size_t ezakiSixIndex = 0;
+    std::size_t ezakiRingIndex = 0;
 
     int cameraAttachedTo = -1;
 

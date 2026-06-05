@@ -151,3 +151,51 @@ std::unique_ptr<Mesh> MeshFactory::createCube(const glm::vec3 &color)
 
     return std::make_unique<Mesh>(vertices, indices);
 }
+
+std::unique_ptr<Mesh> MeshFactory::createDisk(unsigned int subdivisions, const glm::vec3 &color)
+{
+    const unsigned int segmentCount = subdivisions < 3 ? 3 : subdivisions;
+    constexpr float tau = 6.28318530717958647692f;
+
+    std::vector<Vertex> vertices;
+    vertices.reserve((segmentCount + 1) * 2);
+
+    const glm::vec3 frontNormal(0.0f, 0.0f, 1.0f);
+    const glm::vec3 backNormal(0.0f, 0.0f, -1.0f);
+
+    vertices.push_back(Vertex{ glm::vec3(0.0f), frontNormal, color });
+    for (unsigned int i = 0; i < segmentCount; ++i)
+    {
+        const float angle = tau * static_cast<float>(i) / static_cast<float>(segmentCount);
+        vertices.push_back(
+            Vertex{ glm::vec3(std::cos(angle), std::sin(angle), 0.0f), frontNormal, color });
+    }
+
+    const unsigned int backCenterIndex = static_cast<unsigned int>(vertices.size());
+    vertices.push_back(Vertex{ glm::vec3(0.0f), backNormal, color });
+    for (unsigned int i = 0; i < segmentCount; ++i)
+    {
+        const float angle = tau * static_cast<float>(i) / static_cast<float>(segmentCount);
+        vertices.push_back(
+            Vertex{ glm::vec3(std::cos(angle), std::sin(angle), 0.0f), backNormal, color });
+    }
+
+    std::vector<unsigned int> indices;
+    indices.reserve(segmentCount * 6);
+
+    for (unsigned int i = 0; i < segmentCount; ++i)
+    {
+        const unsigned int current = i + 1;
+        const unsigned int next = (i + 1) % segmentCount + 1;
+
+        indices.push_back(0);
+        indices.push_back(current);
+        indices.push_back(next);
+
+        indices.push_back(backCenterIndex);
+        indices.push_back(backCenterIndex + next);
+        indices.push_back(backCenterIndex + current);
+    }
+
+    return std::make_unique<Mesh>(vertices, indices);
+}
