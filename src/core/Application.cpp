@@ -60,6 +60,8 @@ void Application::loadScene()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     };
 
+    RenderObject::StateFunc blendState = []() { glEnable(GL_BLEND); };
+
     RenderObject::StateFunc atmoState = []() {
         glCullFace(GL_FRONT);
         glEnable(GL_BLEND);
@@ -69,10 +71,6 @@ void Application::loadScene()
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glDepthMask(GL_FALSE);
-    };
-
-    RenderObject::StateFunc dwarfShallowState = []() {
-        glEnable(GL_BLEND);
     };
 
     // Skybox
@@ -150,7 +148,7 @@ void Application::loadScene()
     dwarfShallowTransform.scale = glm::vec3(dwarfShallowScale);
 
     loadObjectFromMesh(MeshFactory::createSphere(6), dwarfShallowShader.get(),
-                       dwarfShallowTransform, true, dwarfShallowState, resetState);
+                       dwarfShallowTransform, true, blendState, resetState);
 }
 
 void Application::run()
@@ -195,6 +193,7 @@ void Application::update(float dt)
 
     const float time = elapsedTime;
 
+    // The Earth
     const float earthOrbit = time * earthOrbitSpeed;
     const glm::vec3 earthPosition =
         earthOrbitRadius * glm::vec3(std::cos(earthOrbit), 0.0f, std::sin(earthOrbit));
@@ -206,10 +205,12 @@ void Application::update(float dt)
     Transform &earthAtmo = objects[earthAtmoIndex].transform;
     earthAtmo.position = earthPosition;
 
+    // The clouds
     Transform &clouds = objects[cloudsIndex].transform;
     clouds.position = earthPosition;
     clouds.rotation = glm::vec3(earthAxialTilt, time * cloudSpinSpeed, 0.0f);
 
+    // The Moon
     const float moonOrbit = time * moonOrbitSpeed;
     const glm::vec3 moonOffset =
         moonOrbitRadius * glm::vec3(std::cos(moonOrbit), 0.0f, std::sin(moonOrbit));
@@ -217,6 +218,7 @@ void Application::update(float dt)
     moon.position = earthPosition + moonOffset;
     moon.rotation = glm::vec3(0.0f, -moonOrbit, 0.0f);
 
+    // Dwarf's Shallow
     float offsetTime = time + 100.f;
     const float dwarfShallowOrbit = offsetTime * dwarfShallowOrbitSpeed;
     const glm::vec3 dwarfShallowPosition = dwarfShallowOrbitRadius
@@ -226,6 +228,7 @@ void Application::update(float dt)
     dwarfShallow.position = dwarfShallowPosition;
     dwarfShallow.rotation = glm::vec3(0.0f, offsetTime * dwarfShallowSpinSpeed, 0.0f);
 
+    // Camera attachment
     if (cameraAttachedTo == earthIndex)
         camera.movePosition(earthOffset);
     else if (cameraAttachedTo == dwarfShallowIndex)
