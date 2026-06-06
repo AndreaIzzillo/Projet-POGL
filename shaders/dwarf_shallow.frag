@@ -111,5 +111,4 @@ void main() {
 
     float alpha = mix(0.85, 1.0, pow(facing, 2.0));
     FragColor = vec4(color, alpha);
-
 }

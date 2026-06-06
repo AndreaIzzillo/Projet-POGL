@@ -10,13 +10,7 @@ uniform mat4 uProjection;
 uniform float uTime;
 uniform float uSupernovaTime;
 
-out vec3 vLocalPosition;
-out vec3 vViewPosition;
-out vec3 vWorldPosition;
-out vec3 vViewNormal;
-out vec3 vWorldNormal;
-out vec3 vLocalCenter;
-out vec3 vViewCenter;
+out vec3 vColor;
 
 float random(vec3 p) {
     return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
@@ -46,43 +40,27 @@ float valueNoise(vec3 p) {
     return mix(nxy0, nxy1, f.z);
 }
 
-float fbm(vec3 p) {
-    float sum = 0.0;
-    float amplitude = 0.5;
-    for (int i = 0; i < 5; ++i) {
-        sum += amplitude * valueNoise(p);
-        p *= 2.0;
-        amplitude *= 0.5;
-    }
-    return sum;
-}
-
 void main() {
-    mat3 viewNormalMatrix = transpose(inverse(mat3(uView * uModel)));
-    mat3 worldNormalMatrix = transpose(inverse(mat3(uModel)));
-
     vec3 position = aPosition;
     vec3 normal = aNormal;
 
     vec3 worldPosition = (uModel * vec4(position, 1.0)).xyz;
     vec3 worldNormal = normalize((uModel * vec4(normal, 0.0)).xyz);
 
+    float noiseX = valueNoise(worldPosition * 0.1 + vec3(0.0, 0.0, 0.0)) - 0.2;
+    float noiseY = valueNoise(worldPosition * 0.1 + vec3(100.0, 100.0, 100.0)) - 0.2;
+    float noiseZ = valueNoise(worldPosition * 0.1 + vec3(200.0, 200.0, 200.0)) - 0.2;
+
     float timeOffset = 3.5;
     float explosionTime = uSupernovaTime - timeOffset;
 
     if (explosionTime > 0.0) {
-        float noise = fbm(worldPosition * 2.0);
-        float expansionFactor = noise * log(explosionTime + 1.0) * 10.0 + sqrt(explosionTime) * 50.0;
-        position += normal * expansionFactor;
+        float expansionFactor = explosionTime * 300.0;
+        float noiseScale = 2.0;
+        position += normal * expansionFactor + vec3(noiseX, noiseY, noiseZ) * noiseScale * expansionFactor;
     }
 
-    vLocalPosition = position;
-    vViewPosition = (uView * uModel * vec4(position, 1.0)).xyz;
-    vWorldPosition = worldPosition;
-    vViewNormal = normalize(viewNormalMatrix * normal);
-    vWorldNormal = worldNormal;
-    vLocalCenter = vec3(0.0, 0.0, 0.0);
-    vViewCenter = (uView * uModel * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+    vColor = vec3(0.0, 1.0, 1.0);;
 
     gl_Position = uProjection * uView * uModel * vec4(position, 1.0);
 }

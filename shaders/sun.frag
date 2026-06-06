@@ -7,6 +7,7 @@ in vec3 vViewNormal;
 in vec3 vColor;
 
 uniform float uTime;
+uniform float uSupernovaTime;
 
 out vec4 FragColor;
 
@@ -50,7 +51,7 @@ void main() {
     float facing = clamp(dot(viewNormal, viewDirection), 0.0, 1.0);
     float rim = 1.0 - facing;
 
-    vec3 animatedPosition = localNormal * 3 + vec3(uTime * 0.4, 0.0, 0.0);
+    vec3 animatedPosition = localNormal * 3 + vec3(uTime * 0.4, 0.0, 0.0) * clamp(pow(uSupernovaTime, 2.0) * 0.5, 0.0, 5.0);
     float heat = valueNoise(animatedPosition);
 
     float hotPatch = smoothstep(0.61, 0.64, heat);
@@ -58,11 +59,12 @@ void main() {
 
     float centerLight = toonBand(facing * 0.8 + heat * 0.2, 4.0);
 
-    vec3 shadowOrange = vec3(0.92, 0.25, 0.02);
+    float redShift = min(pow(uSupernovaTime, 2.0) * 0.2, 1.0);
+    vec3 shadowOrange = vec3(0.92 + redShift, 0.25 - redShift, 0.02 - redShift);
     vec3 baseOrange = vColor;
-    vec3 brightYellow = vec3(1.0, 0.86, 0.16);
-    vec3 hotYellow = vec3(1.0, 0.98, 0.52);
-    vec3 rimRed = vec3(0.8, 0.08, 0.00);
+    vec3 brightYellow = vec3(1.0, 0.86 - redShift, 0.16 - redShift);
+    vec3 hotYellow = vec3(1.0, 0.98 - redShift, 0.52 - redShift);
+    vec3 rimRed = vec3(0.8 + redShift, 0.08 - redShift, 0.00);
 
     vec3 color = mix(shadowOrange, brightYellow, centerLight);
     color = mix(color, baseOrange, darkPatch * 0.5);

@@ -8,6 +8,7 @@ uniform mat4 uModel;
 uniform mat4 uView;
 uniform mat4 uProjection;
 uniform float uTime;
+uniform float uSupernovaTime;
 
 out vec3 vLocalPosition; // Position in local space
 out vec3 vLocalNormal;   // Normal in local space
@@ -26,5 +27,11 @@ void main() {
     vViewNormal = normalize(viewNormalMatrix * aNormal);
     vColor = aColor;
 
-    gl_Position = uProjection * viewPosition;
+    vec3 supernovaPosition = aPosition;
+    float minRadius = 0.05;
+    float contraction = pow(uSupernovaTime, 2.0) * 0.08;
+    float maxContraction = max(length(aPosition) - minRadius, 0.0);
+    supernovaPosition -= normalize(aNormal) * min(contraction, maxContraction);
+
+    gl_Position = uProjection * uView * uModel * vec4(supernovaPosition, 1.0);
 }

@@ -5,6 +5,9 @@ in vec3 vViewNormal;
 in vec3 vViewCenter;
 in float vFlareRadius;
 
+uniform float uTime;
+uniform float uSupernovaTime;
+
 out vec4 FragColor;
 
 void main() {
@@ -27,6 +30,8 @@ void main() {
     float transitionWidth = vFlareRadius * 0.2;
     float insideAmount =
         1.0 - smoothstep(vFlareRadius - transitionWidth, vFlareRadius, cameraDistanceToCenter);
+
+    insideAmount = insideAmount - smoothstep(0.0, 2.0, uSupernovaTime);
     
     // debug
     // insideAmount = 0.0;

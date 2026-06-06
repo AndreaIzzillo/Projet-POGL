@@ -43,6 +43,7 @@ private:
     std::unique_ptr<Shader> ezakiSixShader;
     std::unique_ptr<Shader> ezakiRingShader;
     std::unique_ptr<Shader> supernovaShader;
+    std::unique_ptr<Shader> supernovaDotsShader;
 
     // Meshes and objects
     std::vector<std::unique_ptr<Mesh>> meshes;

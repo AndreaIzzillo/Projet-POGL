@@ -73,6 +73,7 @@ void Application::loadScene()
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     };
 
     RenderObject::StateFunc blendState = []() { glEnable(GL_BLEND); };
@@ -86,6 +87,11 @@ void Application::loadScene()
         glDisable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glDepthMask(GL_FALSE);
+    };
+
+    RenderObject::StateFunc dotState = []() {
+        glEnable(GL_BLEND);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
     };
 
     // Skybox
@@ -190,10 +196,20 @@ void Application::loadScene()
     supernovaShader = std::make_unique<Shader>("shaders/supernova.vert", "shaders/supernova.frag");
 
     Transform supernovaTransform;
-    supernovaTransform.scale = glm::vec3(50.0f);
+    supernovaTransform.scale = glm::vec3(10.0f);
 
-    loadObjectFromMesh(MeshFactory::createSphere(4, RED), supernovaShader.get(), supernovaTransform,
+    loadObjectFromMesh(MeshFactory::createSphere(6, BLUE), supernovaShader.get(), supernovaTransform,
                        true, blendState, resetState);
+    
+    // Supernova dots
+    supernovaDotsShader = std::make_unique<Shader>("shaders/supernova_dots.vert", "shaders/supernova_dots.frag");
+
+    Transform supernovaDotsTransform;
+    supernovaDotsTransform.scale = glm::vec3(10.0f);
+
+    loadObjectFromMesh(MeshFactory::createSphere(3, BLUE), supernovaDotsShader.get(), supernovaDotsTransform,
+                       true, dotState, resetState);
+
 }
 
 void Application::run()

@@ -46,5 +46,5 @@ private:
     float fov = 80.0f;
     float aspectRatio = 1.0f;
     float nearPlane = 0.1f;
-    float farPlane = 10000.0f;
+    float farPlane = 100000.0f;
 };
