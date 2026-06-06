@@ -33,7 +33,7 @@ void RenderObject::setAfterDraw(StateFunc afterDrawFunc)
     afterDraw = afterDrawFunc;
 }
 
-void RenderObject::draw(const Camera &camera, float timeSeconds) const
+void RenderObject::draw(const Camera &camera, float timeSeconds, float supernovaTime) const
 {
     if (!mesh || !shader)
         return;
@@ -46,6 +46,7 @@ void RenderObject::draw(const Camera &camera, float timeSeconds) const
     shader->setVec3("uCameraPosition", camera.getPosition());
     shader->setVec3("uSunPosition", sunPosition);
     shader->setFloat("uTime", timeSeconds);
+    shader->setFloat("uSupernovaTime", supernovaTime);
 
     if (beforeDraw)
         beforeDraw();

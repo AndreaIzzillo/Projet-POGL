@@ -42,6 +42,7 @@ private:
     std::unique_ptr<Shader> dwarfShallowShader;
     std::unique_ptr<Shader> ezakiSixShader;
     std::unique_ptr<Shader> ezakiRingShader;
+    std::unique_ptr<Shader> supernovaShader;
 
     // Meshes and objects
     std::vector<std::unique_ptr<Mesh>> meshes;
@@ -62,6 +63,9 @@ private:
     std::array<bool, 256> keys{};
     int previousTimeMs = 0;
     float elapsedTime = 0.0f;
+    float supernovaTime = 0.0f;
+    float supernovaStop = 0.0f;
+    bool supernovaActive = false;
 
     bool mouseCaptured = false;
     int lastMouseX = 0;

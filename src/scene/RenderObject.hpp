@@ -20,7 +20,7 @@ public:
     void setBeforeDraw(StateFunc beforeDrawFunc);
     void setAfterDraw(StateFunc afterDrawFunc);
 
-    void draw(const Camera &camera, float timeSeconds) const;
+    void draw(const Camera &camera, float timeSeconds, float supernovaTime) const;
 
     static void setSunPosition(const glm::vec3 &sunPosition);
 

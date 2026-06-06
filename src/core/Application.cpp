@@ -185,6 +185,15 @@ void Application::loadScene()
 
     loadObjectFromMesh(MeshFactory::createSphere(4), ezakiSixShader.get(), ezakiSixTransform, true,
                        blendState, resetState);
+
+    // Supernova
+    supernovaShader = std::make_unique<Shader>("shaders/supernova.vert", "shaders/supernova.frag");
+
+    Transform supernovaTransform;
+    supernovaTransform.scale = glm::vec3(50.0f);
+
+    loadObjectFromMesh(MeshFactory::createSphere(4, RED), supernovaShader.get(), supernovaTransform,
+                       true, blendState, resetState);
 }
 
 void Application::run()
@@ -220,6 +229,8 @@ void Application::update(float dt)
         camera.increaseSpeed(dt);
     if (keys['x'])
         camera.decreaseSpeed(dt);
+    if (keys['p'])
+        supernovaActive = true;
     if (keys['0'])
         cameraAttachedTo = -1;
     if (keys['1'])
@@ -322,11 +333,11 @@ void Application::render()
 
     for (const RenderObject *object : opaqueObjects)
     {
-        object->draw(camera, elapsedTime);
+        object->draw(camera, elapsedTime, supernovaTime);
     }
     for (const RenderObject *object : transparentObjects)
     {
-        object->draw(camera, elapsedTime);
+        object->draw(camera, elapsedTime, supernovaTime);
     }
 
     window.swapBuffers();
@@ -349,8 +360,12 @@ void Application::idleCallback()
 
     const int currentTimeMs = glutGet(GLUT_ELAPSED_TIME);
     const float deltaTime = static_cast<float>(currentTimeMs - instance->previousTimeMs) / 1000.0f;
+
     instance->previousTimeMs = currentTimeMs;
     instance->elapsedTime += deltaTime;
+    if (!instance->supernovaActive)
+        instance->supernovaStop += deltaTime;
+    instance->supernovaTime = instance->elapsedTime - instance->supernovaStop;
 
     instance->update(deltaTime);
 
