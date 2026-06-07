@@ -230,8 +230,7 @@ void Application::loadScene()
     loadObjectFromMesh(MeshFactory::createSphere(6, BLUE), supernovaShader.get(),
                        supernovaTransform, true, blendState, resetState);
 
-    // The Black Hole. It is not in `objects`, so give it a sentinel index past the last
-    // object (no real object uses it) to drive the camera-follow logic.
+    // The Black Hole
     blackHoleIndex = objects.size();
     const glm::vec3 blackHoleStart = blackHoleOrbitRadius
         * glm::vec3(std::cos(blackHoleOrbitPhase), 0.0f, std::sin(blackHoleOrbitPhase));
@@ -337,6 +336,7 @@ void Application::update(float dt)
     // Ezaki Ring
     Transform &ezakiRing = objects[ezakiRingIndex].transform;
     ezakiRing.position = ezakiSixPosition;
+
     // The Black Hole orbits the sun in the XZ plane like the planets.
     const float blackHoleOrbit = time * blackHoleOrbitSpeed + blackHoleOrbitPhase;
     const glm::vec3 blackHolePosition = blackHoleOrbitRadius
