@@ -72,7 +72,7 @@ void main() {
 
     if (explosionTime > 0.0) {
         float noise = fbm(worldPosition * 2.0);
-        float expansionFactor = noise * log(explosionTime + 1.0) * 10.0 + sqrt(explosionTime) * 50.0;
+        float expansionFactor = noise * log(explosionTime + 1.0) * 10.0 + pow(explosionTime, 0.75) * 50.0;
         position += normal * expansionFactor;
     }
 

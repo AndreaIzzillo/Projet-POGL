@@ -272,6 +272,8 @@ void Application::update(float dt)
         camera.increaseSpeed(dt);
     if (keys['x'])
         camera.decreaseSpeed(dt);
+    if (keys['f'])
+        glutFullScreen();
     if (keys['p'])
         supernovaActive = true;
     if (keys['0'])
