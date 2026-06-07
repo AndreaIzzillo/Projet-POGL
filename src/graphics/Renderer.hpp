@@ -9,8 +9,7 @@ public:
 
     void init();
 
-    // Offscreen scene capture (used for the black hole's gravitational lensing).
-    // Renders the whole scene into an FBO so a later pass can sample it as a texture.
+    // Offscreen scene capture
     void initFramebuffer(int width, int height);
     void beginSceneCapture() const;
     void blitSceneToDefault() const;

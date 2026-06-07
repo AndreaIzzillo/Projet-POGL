@@ -35,7 +35,6 @@ void Renderer::initFramebuffer(int newWidth, int newHeight)
     glGenFramebuffers(1, &sceneFbo);
     glBindFramebuffer(GL_FRAMEBUFFER, sceneFbo);
 
-    // Color attachment: the captured scene, sampled later by the black hole shader.
     glGenTextures(1, &sceneColorTex);
     glBindTexture(GL_TEXTURE_2D, sceneColorTex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
@@ -45,8 +44,7 @@ void Renderer::initFramebuffer(int newWidth, int newHeight)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneColorTex, 0);
 
-    // Depth attachment: lets the scene depth-test normally and be blitted to the screen so
-    // foreground objects can occlude the black hole.
+
     glGenRenderbuffers(1, &depthRbo);
     glBindRenderbuffer(GL_RENDERBUFFER, depthRbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);

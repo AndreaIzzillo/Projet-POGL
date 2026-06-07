@@ -44,10 +44,10 @@ constexpr float ezakiSixOrbitRadius = 1900.0f;
 constexpr float ezakiSixOrbitSpeed = 0.15f;
 constexpr float ezakiSixSpinSpeed = 0.05f;
 
-constexpr float blackHoleEventHorizon = 100.0f; // Radius of the solid black disk
-constexpr float blackHoleInfluence = 200.0f;    // Radius where the lensing fades out
-constexpr float blackHoleOrbitRadius = 1600.0f;
-constexpr float blackHoleOrbitSpeed = 0.01f;
+constexpr float blackHoleEventHorizon = 100.0f;
+constexpr float blackHoleInfluence = 200.0f;
+constexpr float blackHoleOrbitRadius = 2500.0f;
+constexpr float blackHoleOrbitSpeed = -0.1f;
 constexpr float blackHoleOrbitPhase = 3.6f;
 
 Application *Application::instance = nullptr;
@@ -85,9 +85,6 @@ void Application::loadScene()
 
     RenderObject::StateFunc blendState = []() { glEnable(GL_BLEND); };
 
-    // Transparent halo around a sphere: cull front faces, blend, and DON'T write depth
-    // (otherwise its invisible footprint occludes far objects like the orbiting black hole).
-    // Used by both the sun flare and the earth's atmosphere.
     RenderObject::StateFunc atmoState = []() {
         glCullFace(GL_FRONT);
         glEnable(GL_BLEND);
