@@ -24,6 +24,8 @@ add_executable(${PROJECT_NAME}
     src/graphics/MeshFactory.hpp
     src/graphics/Skybox.cpp
     src/graphics/Skybox.hpp
+    src/graphics/BlackHole.cpp
+    src/graphics/BlackHole.hpp
 
     src/utils/GltfLoader.cpp
     src/utils/GltfLoader.hpp

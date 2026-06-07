@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "core/Window.hpp"
+#include "graphics/BlackHole.hpp"
 #include "graphics/Mesh.hpp"
 #include "graphics/MeshFactory.hpp"
 #include "graphics/Renderer.hpp"
@@ -50,6 +51,7 @@ private:
     std::vector<std::unique_ptr<Mesh>> meshes;
     std::vector<RenderObject> objects;
     std::unique_ptr<Skybox> skybox;
+    std::unique_ptr<BlackHole> blackHole;
 
     // Animated celestial bodies (indices into objects)
     std::size_t earthIndex = 0;

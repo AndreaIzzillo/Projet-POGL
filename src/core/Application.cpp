@@ -44,6 +44,12 @@ constexpr float ezakiSixOrbitRadius = 1900.0f;
 constexpr float ezakiSixOrbitSpeed = 0.15f;
 constexpr float ezakiSixSpinSpeed = 0.05f;
 
+constexpr float blackHoleEventHorizon = 100.0f; // Radius of the solid black disk
+constexpr float blackHoleInfluence = 200.0f;    // Radius where the lensing fades out
+constexpr float blackHoleOrbitRadius = 1600.0f;
+constexpr float blackHoleOrbitSpeed = 0.0f;
+constexpr float blackHoleOrbitPhase = 3.6f; // Starting angle so it is in view at launch
+
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
@@ -52,6 +58,7 @@ Application::Application(int &argc, char **argv)
 {
     instance = this;
     renderer.init();
+    renderer.initFramebuffer(window.getWidth(), window.getHeight());
 
     loadScene();
 
@@ -81,6 +88,14 @@ void Application::loadScene()
     RenderObject::StateFunc atmoState = []() {
         glCullFace(GL_FRONT);
         glEnable(GL_BLEND);
+    };
+
+    // Like atmoState, but the transparent halo must not write depth, otherwise it occludes
+    // far objects (e.g. the orbiting black hole) that pass behind its large screen footprint.
+    RenderObject::StateFunc flareState = []() {
+        glCullFace(GL_FRONT);
+        glEnable(GL_BLEND);
+        glDepthMask(GL_FALSE);
     };
 
     RenderObject::StateFunc cloudsState = []() {
@@ -117,7 +132,7 @@ void Application::loadScene()
     sunFlareTransform.scale = glm::vec3(350.0f);
 
     loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
-                       sunFlareShader.get(), sunFlareTransform, true, atmoState, resetState);
+                       sunFlareShader.get(), sunFlareTransform, true, flareState, resetState);
 
     // The Earth
     earthShader = std::make_unique<Shader>("shaders/earth.vert", "shaders/earth.frag");
@@ -220,6 +235,12 @@ void Application::loadScene()
 
     loadObjectFromMesh(MeshFactory::createSphere(6, BLUE), supernovaShader.get(),
                        supernovaTransform, true, blendState, resetState);
+
+    // The Black Hole (gravitational lensing, drawn last as a screen-space pass)
+    const glm::vec3 blackHoleStart = blackHoleOrbitRadius
+        * glm::vec3(std::cos(blackHoleOrbitPhase), 0.0f, std::sin(blackHoleOrbitPhase));
+    blackHole =
+        std::make_unique<BlackHole>(blackHoleStart, blackHoleEventHorizon, blackHoleInfluence);
 }
 
 void Application::run()
@@ -316,6 +337,10 @@ void Application::update(float dt)
     // Ezaki Ring
     Transform &ezakiRing = objects[ezakiRingIndex].transform;
     ezakiRing.position = ezakiSixPosition;
+    // The Black Hole orbits the sun in the XZ plane like the planets.
+    const float blackHoleOrbit = time * blackHoleOrbitSpeed + blackHoleOrbitPhase;
+    blackHole->setPosition(blackHoleOrbitRadius
+                           * glm::vec3(std::cos(blackHoleOrbit), 0.0f, std::sin(blackHoleOrbit)));
 
     // Camera attachment
     if (cameraAttachedTo == earthIndex)
@@ -328,7 +353,8 @@ void Application::update(float dt)
 
 void Application::render()
 {
-    renderer.clear();
+    // Render the whole scene into an offscreen texture so the black hole can sample it.
+    renderer.beginSceneCapture();
 
     skybox->draw(camera);
 
@@ -365,6 +391,12 @@ void Application::render()
     {
         object->draw(camera, elapsedTime, supernovaTime);
     }
+
+    // Copy the captured scene to the screen, then draw the black hole on top of it,
+    // sampling the captured scene texture to fake the gravitational lensing.
+    renderer.blitSceneToDefault();
+    blackHole->draw(camera, renderer.getSceneColorTexture(),
+                    glm::vec2(window.getWidth(), window.getHeight()));
 
     window.swapBuffers();
 }

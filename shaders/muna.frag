@@ -10,7 +10,9 @@ uniform vec3 uSunPosition;
 out vec4 FragColor;
 
 float random(vec3 p) {
-    return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
+    p = fract(p * vec3(0.1031, 0.1030, 0.0973));
+    p += dot(p, p.yxz + 33.33);
+    return fract((p.x + p.y) * p.z);
 }
 
 float valueNoise(vec3 p) {
