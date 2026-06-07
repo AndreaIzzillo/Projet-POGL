@@ -29,9 +29,6 @@ const glm::vec3 &BlackHole::getPosition() const
 
 void BlackHole::draw(const Camera &camera, GLuint sceneColorTex, const glm::vec2 &resolution) const
 {
-    // Cull front faces (draw the inner hemisphere) so the effect keeps rendering when the
-    // camera is inside the influence sphere — the OpenGL equivalent of the video's
-    // "flip the normals" trick, so you can fly into the black hole.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
@@ -51,11 +48,10 @@ void BlackHole::draw(const Camera &camera, GLuint sceneColorTex, const glm::vec2
     shader->setFloat("uInfluenceRadius", influenceRadius);
     shader->setFloat("uDistortionStrength", distortionStrength);
     shader->setFloat("uDistortionFalloff", distortionFalloff);
-    shader->setVec3("uGlowColor", glowColor);
-    shader->setFloat("uGlowIntensity", glowIntensity);
-    shader->setFloat("uGlowFalloff", glowFalloff);
+    shader->setFloat("uMaxOffset", maxOffset);
+    shader->setVec3("uRingColor", ringColor);
+    shader->setFloat("uRingIntensity", ringIntensity);
 
-    // The Shader helper has no vec2 / sampler setters, so set these directly.
     const GLint resLoc = glGetUniformLocation(shader->getId(), "uResolution");
     if (resLoc != -1)
         glUniform2f(resLoc, resolution.x, resolution.y);
@@ -68,7 +64,6 @@ void BlackHole::draw(const Camera &camera, GLuint sceneColorTex, const glm::vec2
 
     sphere->draw();
 
-    // Restore the default render state used by the rest of the scene.
     glCullFace(GL_BACK);
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);

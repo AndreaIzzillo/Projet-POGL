@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -61,11 +62,12 @@ private:
     std::size_t dwarfShallowIndex = 0;
     std::size_t ezakiSixIndex = 0;
     std::size_t ezakiRingIndex = 0;
+    std::size_t blackHoleIndex = 0;
 
     int cameraAttachedTo = -1;
 
     std::array<bool, 256> keys{};
-    int previousTimeMs = 0;
+    std::chrono::steady_clock::time_point previousTime;
     float elapsedTime = 0.0f;
     float supernovaTime = 0.0f;
     float supernovaStop = 0.0f;

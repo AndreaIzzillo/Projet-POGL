@@ -8,10 +8,7 @@ class Camera;
 class Mesh;
 class Shader;
 
-// A screen-space gravitational-lensing black hole (Outer Wilds style).
-// It is drawn last, after the scene has been captured into a texture: the shader samples
-// that texture with UVs pushed toward the black hole center to fake the lensing, draws a
-// black event-horizon disk, and adds a faint fresnel rim glow.
+
 class BlackHole
 {
 public:
@@ -31,12 +28,12 @@ private:
     float eventHorizonRadius;
     float influenceRadius;
 
-    // Look / lensing parameters (tweak to taste).
     float distortionStrength = 2.0f;
     float distortionFalloff = 2.0f;
-    glm::vec3 glowColor = glm::vec3(0.4f, 0.6f, 1.0f);
-    float glowIntensity = 0.15f;
-    float glowFalloff = 3.0f;
+    float maxOffset = 0.35f;
+
+    glm::vec3 ringColor = glm::vec3(1.0f, 0.9f, 0.75f);
+    float ringIntensity = 0.6f;
 
     std::unique_ptr<Mesh> sphere;
     std::unique_ptr<Shader> shader;

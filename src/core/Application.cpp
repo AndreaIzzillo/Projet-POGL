@@ -47,8 +47,8 @@ constexpr float ezakiSixSpinSpeed = 0.05f;
 constexpr float blackHoleEventHorizon = 100.0f; // Radius of the solid black disk
 constexpr float blackHoleInfluence = 200.0f;    // Radius where the lensing fades out
 constexpr float blackHoleOrbitRadius = 1600.0f;
-constexpr float blackHoleOrbitSpeed = 0.0f;
-constexpr float blackHoleOrbitPhase = 3.6f; // Starting angle so it is in view at launch
+constexpr float blackHoleOrbitSpeed = 0.01f;
+constexpr float blackHoleOrbitPhase = 3.6f;
 
 Application *Application::instance = nullptr;
 
@@ -62,7 +62,7 @@ Application::Application(int &argc, char **argv)
 
     loadScene();
 
-    previousTimeMs = glutGet(GLUT_ELAPSED_TIME);
+    previousTime = std::chrono::steady_clock::now();
     glutDisplayFunc(Application::displayCallback);
     glutIdleFunc(Application::idleCallback);
     glutKeyboardFunc(Application::keyboardDownCallback);
@@ -85,14 +85,10 @@ void Application::loadScene()
 
     RenderObject::StateFunc blendState = []() { glEnable(GL_BLEND); };
 
+    // Transparent halo around a sphere: cull front faces, blend, and DON'T write depth
+    // (otherwise its invisible footprint occludes far objects like the orbiting black hole).
+    // Used by both the sun flare and the earth's atmosphere.
     RenderObject::StateFunc atmoState = []() {
-        glCullFace(GL_FRONT);
-        glEnable(GL_BLEND);
-    };
-
-    // Like atmoState, but the transparent halo must not write depth, otherwise it occludes
-    // far objects (e.g. the orbiting black hole) that pass behind its large screen footprint.
-    RenderObject::StateFunc flareState = []() {
         glCullFace(GL_FRONT);
         glEnable(GL_BLEND);
         glDepthMask(GL_FALSE);
@@ -132,7 +128,7 @@ void Application::loadScene()
     sunFlareTransform.scale = glm::vec3(350.0f);
 
     loadObjectFromMesh(MeshFactory::createSphere(4, glm::vec3(1.0f, 0.5f, 0.0f)),
-                       sunFlareShader.get(), sunFlareTransform, true, flareState, resetState);
+                       sunFlareShader.get(), sunFlareTransform, true, atmoState, resetState);
 
     // The Earth
     earthShader = std::make_unique<Shader>("shaders/earth.vert", "shaders/earth.frag");
@@ -236,7 +232,9 @@ void Application::loadScene()
     loadObjectFromMesh(MeshFactory::createSphere(6, BLUE), supernovaShader.get(),
                        supernovaTransform, true, blendState, resetState);
 
-    // The Black Hole (gravitational lensing, drawn last as a screen-space pass)
+    // The Black Hole. It is not in `objects`, so give it a sentinel index past the last
+    // object (no real object uses it) to drive the camera-follow logic.
+    blackHoleIndex = objects.size();
     const glm::vec3 blackHoleStart = blackHoleOrbitRadius
         * glm::vec3(std::cos(blackHoleOrbitPhase), 0.0f, std::sin(blackHoleOrbitPhase));
     blackHole =
@@ -286,6 +284,8 @@ void Application::update(float dt)
         cameraAttachedTo = dwarfShallowIndex;
     if (keys['3'])
         cameraAttachedTo = ezakiSixIndex;
+    if (keys['4'])
+        cameraAttachedTo = blackHoleIndex;
 
     const float time = elapsedTime;
 
@@ -339,8 +339,10 @@ void Application::update(float dt)
     ezakiRing.position = ezakiSixPosition;
     // The Black Hole orbits the sun in the XZ plane like the planets.
     const float blackHoleOrbit = time * blackHoleOrbitSpeed + blackHoleOrbitPhase;
-    blackHole->setPosition(blackHoleOrbitRadius
-                           * glm::vec3(std::cos(blackHoleOrbit), 0.0f, std::sin(blackHoleOrbit)));
+    const glm::vec3 blackHolePosition = blackHoleOrbitRadius
+        * glm::vec3(std::cos(blackHoleOrbit), 0.0f, std::sin(blackHoleOrbit));
+    const glm::vec3 blackHoleOffset = blackHolePosition - blackHole->getPosition();
+    blackHole->setPosition(blackHolePosition);
 
     // Camera attachment
     if (cameraAttachedTo == earthIndex)
@@ -349,11 +351,12 @@ void Application::update(float dt)
         camera.movePosition(dwarfShallowOffset);
     else if (cameraAttachedTo == ezakiSixIndex)
         camera.movePosition(ezakiSixOffset);
+    else if (cameraAttachedTo == blackHoleIndex)
+        camera.movePosition(blackHoleOffset);
 }
 
 void Application::render()
 {
-    // Render the whole scene into an offscreen texture so the black hole can sample it.
     renderer.beginSceneCapture();
 
     skybox->draw(camera);
@@ -392,8 +395,6 @@ void Application::render()
         object->draw(camera, elapsedTime, supernovaTime);
     }
 
-    // Copy the captured scene to the screen, then draw the black hole on top of it,
-    // sampling the captured scene texture to fake the gravitational lensing.
     renderer.blitSceneToDefault();
     blackHole->draw(camera, renderer.getSceneColorTexture(),
                     glm::vec2(window.getWidth(), window.getHeight()));
@@ -416,10 +417,12 @@ void Application::idleCallback()
         return;
     }
 
-    const int currentTimeMs = glutGet(GLUT_ELAPSED_TIME);
-    const float deltaTime = static_cast<float>(currentTimeMs - instance->previousTimeMs) / 1000.0f;
+    const auto now = std::chrono::steady_clock::now();
+    float deltaTime = std::chrono::duration<float>(now - instance->previousTime).count();
+    instance->previousTime = now;
 
-    instance->previousTimeMs = currentTimeMs;
+    deltaTime = std::min(deltaTime, 0.1f);
+
     instance->elapsedTime += deltaTime;
     if (!instance->supernovaActive)
         instance->supernovaStop += deltaTime;
