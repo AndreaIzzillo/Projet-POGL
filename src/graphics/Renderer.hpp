@@ -11,6 +11,7 @@ public:
 
     // Offscreen scene capture
     void initFramebuffer(int width, int height);
+    void resizeFramebuffer(int width, int height);
     void beginSceneCapture() const;
     void blitSceneToDefault() const;
     GLuint getSceneColorTexture() const;

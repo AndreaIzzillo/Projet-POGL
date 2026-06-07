@@ -60,6 +60,23 @@ void Renderer::initFramebuffer(int newWidth, int newHeight)
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
+void Renderer::resizeFramebuffer(int newWidth, int newHeight)
+{
+    if (newWidth <= 0 || newHeight <= 0)
+        return;
+
+    width = newWidth;
+    height = newHeight;
+
+    glBindTexture(GL_TEXTURE_2D, sceneColorTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, depthRbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
 void Renderer::beginSceneCapture() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, sceneFbo);

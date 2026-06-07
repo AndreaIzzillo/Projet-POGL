@@ -87,6 +87,7 @@ private:
     static void keyboardUpCallback(unsigned char key, int x, int y);
     static void mouseButtonCallback(int button, int state, int x, int y);
     static void mouseMotionCallback(int x, int y);
+    static void reshapeCallback(int width, int height);
 
     Mesh *addMesh(std::unique_ptr<Mesh> mesh);
 

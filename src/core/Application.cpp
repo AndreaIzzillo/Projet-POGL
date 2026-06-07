@@ -69,6 +69,7 @@ Application::Application(int &argc, char **argv)
     glutKeyboardUpFunc(Application::keyboardUpCallback);
     glutMouseFunc(Application::mouseButtonCallback);
     glutMotionFunc(Application::mouseMotionCallback);
+    glutReshapeFunc(Application::reshapeCallback);
 }
 
 void Application::loadScene()
@@ -470,6 +471,17 @@ void Application::mouseMotionCallback(int x, int y)
     instance->lastMouseY = y;
 
     instance->camera.rotateByMouse(static_cast<float>(dx), static_cast<float>(dy));
+}
+
+void Application::reshapeCallback(int width, int height)
+{
+    if (!instance || width <= 0 || height <= 0)
+        return;
+
+    instance->window.setSize(width, height);
+    instance->camera.setAspectRatio(static_cast<float>(width) / static_cast<float>(height));
+    instance->renderer.resizeFramebuffer(width, height);
+    glViewport(0, 0, width, height);
 }
 
 Mesh *Application::addMesh(std::unique_ptr<Mesh> mesh)

@@ -50,3 +50,9 @@ int Window::getHeight() const
 {
     return height;
 }
+
+void Window::setSize(int newWidth, int newHeight)
+{
+    width = newWidth;
+    height = newHeight;
+}
