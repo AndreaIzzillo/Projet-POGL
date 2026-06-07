@@ -51,7 +51,7 @@ void main() {
     float facing = clamp(dot(viewNormal, viewDirection), 0.0, 1.0);
     float rim = 1.0 - facing;
 
-    vec3 animatedPosition = localNormal * 3 + vec3(uTime * 0.4, 0.0, 0.0) * clamp(pow(uSupernovaTime, 2.0) * 0.5, 0.0, 5.0);
+    vec3 animatedPosition = localNormal * 3 + vec3(uTime * 0.4, 0.0, 0.0);
     float heat = valueNoise(animatedPosition);
 
     float hotPatch = smoothstep(0.61, 0.64, heat);

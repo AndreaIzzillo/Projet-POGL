@@ -192,24 +192,34 @@ void Application::loadScene()
     loadObjectFromMesh(MeshFactory::createSphere(4), ezakiSixShader.get(), ezakiSixTransform, true,
                        blendState, resetState);
 
+    // Supernova dots
+    supernovaDotsShader =
+        std::make_unique<Shader>("shaders/supernova_dots.vert", "shaders/supernova_dots.frag");
+
+    Transform supernovaDotsTransform;
+    supernovaDotsTransform.scale = glm::vec3(10.0f);
+
+    loadObjectFromMesh(MeshFactory::createSphere(4, BLUE), supernovaDotsShader.get(),
+                       supernovaDotsTransform, true, dotState, resetState);
+
+    // Supernova shockwave
+    supernovaShockwaveShader = std::make_unique<Shader>("shaders/supernova_shockwave.vert",
+                                                        "shaders/supernova_shockwave.frag");
+
+    Transform supernovaShockwaveTransform;
+    supernovaShockwaveTransform.scale = glm::vec3(10.0f);
+
+    loadObjectFromMesh(MeshFactory::createSphere(4, BLUE), supernovaShockwaveShader.get(),
+                       supernovaShockwaveTransform, true, atmoState, resetState);
+
     // Supernova
     supernovaShader = std::make_unique<Shader>("shaders/supernova.vert", "shaders/supernova.frag");
 
     Transform supernovaTransform;
     supernovaTransform.scale = glm::vec3(10.0f);
 
-    loadObjectFromMesh(MeshFactory::createSphere(6, BLUE), supernovaShader.get(), supernovaTransform,
-                       true, blendState, resetState);
-    
-    // Supernova dots
-    supernovaDotsShader = std::make_unique<Shader>("shaders/supernova_dots.vert", "shaders/supernova_dots.frag");
-
-    Transform supernovaDotsTransform;
-    supernovaDotsTransform.scale = glm::vec3(10.0f);
-
-    loadObjectFromMesh(MeshFactory::createSphere(3, BLUE), supernovaDotsShader.get(), supernovaDotsTransform,
-                       true, dotState, resetState);
-
+    loadObjectFromMesh(MeshFactory::createSphere(6, BLUE), supernovaShader.get(),
+                       supernovaTransform, true, blendState, resetState);
 }
 
 void Application::run()

@@ -47,9 +47,9 @@ void main() {
     vec3 worldPosition = (uModel * vec4(position, 1.0)).xyz;
     vec3 worldNormal = normalize((uModel * vec4(normal, 0.0)).xyz);
 
-    float noiseX = valueNoise(worldPosition * 0.1 + vec3(0.0, 0.0, 0.0)) - 0.2;
-    float noiseY = valueNoise(worldPosition * 0.1 + vec3(100.0, 100.0, 100.0)) - 0.2;
-    float noiseZ = valueNoise(worldPosition * 0.1 + vec3(200.0, 200.0, 200.0)) - 0.2;
+    float noiseX = valueNoise(worldPosition * 0.1 + vec3(0.0, 0.0, 0.0)) - 0.5;
+    float noiseY = valueNoise(worldPosition * 0.1 + vec3(100.0, 100.0, 100.0)) - 0.5;
+    float noiseZ = valueNoise(worldPosition * 0.1 + vec3(200.0, 200.0, 200.0)) - 0.5;
 
     float timeOffset = 3.5;
     float explosionTime = uSupernovaTime - timeOffset;
