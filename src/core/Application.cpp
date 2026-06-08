@@ -352,7 +352,7 @@ void Application::update(float dt)
     Transform &ezakiRing = objects[ezakiRingIndex].transform;
     ezakiRing.position = ezakiSixPosition;
 
-    // The Black Hole orbits the sun in the XZ plane like the planets.
+    // The Black Hole
     const float blackHoleOrbit = time * blackHoleOrbitSpeed + blackHoleOrbitPhase;
     const glm::vec3 blackHolePosition = blackHoleOrbitRadius
         * glm::vec3(std::cos(blackHoleOrbit), 0.0f, std::sin(blackHoleOrbit));
