@@ -46,14 +46,26 @@ float valueNoise(vec3 p) {
     return mix(nxy0, nxy1, f.z);
 }
 
+#define OCTAVES 8
+float fbm(vec3 p) {
+    float sum = 0.0;
+    float amplitude = 0.5;
+    for (int i = 0; i < OCTAVES; i++) {
+        sum += amplitude * valueNoise(p);
+        p *= 2.0;
+        amplitude *= 0.5;
+    }
+    return sum;
+}
+
 void main() {
     vec3 position = aPosition;
     vec3 normal = aNormal;
 
     vec3 seed = position + uTime * 0.03;
-    const float waveIntensity = 8.0;
+    const float waveIntensity = 20.0;
     const float waveHeight = 0.08;
-    float noise = valueNoise(seed * waveIntensity);
+    float noise = fbm(seed * waveIntensity);
     noise *= waveHeight;
 
     position += normal * noise;

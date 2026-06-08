@@ -179,7 +179,7 @@ void Application::loadScene()
     Transform dwarfShallowTransform;
     dwarfShallowTransform.scale = glm::vec3(dwarfShallowScale);
 
-    loadObjectFromMesh(MeshFactory::createSphere(6), dwarfShallowShader.get(),
+    loadObjectFromMesh(MeshFactory::createSphere(7), dwarfShallowShader.get(),
                        dwarfShallowTransform, true, blendState, resetState);
     // Ezaki Ring
     ezakiRingShader =
