@@ -50,6 +50,8 @@ constexpr float blackHoleOrbitRadius = 2500.0f;
 constexpr float blackHoleOrbitSpeed = -0.1f;
 constexpr float blackHoleOrbitPhase = 3.6f;
 
+constexpr float timeTravelSpeed = 10.0f;
+
 Application *Application::instance = nullptr;
 
 Application::Application(int &argc, char **argv)
@@ -285,6 +287,19 @@ void Application::update(float dt)
         cameraAttachedTo = ezakiSixIndex;
     if (keys['4'])
         cameraAttachedTo = blackHoleIndex;
+
+    float timeDirection = 0.0f;
+    if (keys['m'])
+        timeDirection += 1.0f;
+    if (keys['n'])
+        timeDirection -= 1.0f;
+
+    if (timeDirection != 0.0f)
+        elapsedTime = std::max(0.0f, elapsedTime + timeDirection * timeTravelSpeed * dt);
+
+    if (!supernovaActive)
+        supernovaStop = elapsedTime;
+    supernovaTime = std::max(0.0f, elapsedTime - supernovaStop);
 
     const float time = elapsedTime;
 
