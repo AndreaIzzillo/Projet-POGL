@@ -71,7 +71,6 @@ void main() {
     float ring = 1.0 - smoothstep(0.0, eventR * 0.10, abs(r - eventR * 1.04));
     color += uRingColor * ring * uRingIntensity;
 
-    // Feather only the very outer ring so the polygonal silhouette blends in seamlessly.
     float alpha = 1.0 - smoothstep(influenceR * 0.97, influenceR, r);
 
     FragColor = vec4(color, alpha);
