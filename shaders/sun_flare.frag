@@ -20,7 +20,7 @@ void main() {
     float smoothFacing = pow(facing, 5.0);
 
     float cameraDistanceToCenter = length(vViewCenter);
-    
+
     vec3 cameraToSun = normalize(vViewCenter);
     vec3 cameraToFragment = normalize(vViewPosition);
 
@@ -32,10 +32,7 @@ void main() {
         1.0 - smoothstep(vFlareRadius - transitionWidth, vFlareRadius, cameraDistanceToCenter);
 
     insideAmount = insideAmount - smoothstep(0.0, 2.0, uSupernovaTime);
-    
-    // debug
-    // insideAmount = 0.0;
-    
+
     float atmosphereAlpha = 0.2;
     float alpha = mix(smoothFacing, atmosphereAlpha, insideAmount);
 

@@ -105,7 +105,7 @@ void main() {
     float pearlIntensity = pow(lightContribution, 4.0) * (1.0 - smoothstep(100.0, 300.0, distance));
     if (pearlNoise > 0.90)
         color += vec3(1.0) * pearlIntensity;
-    
+
     // Sun contribution
     color *= mix(0.3, 1.0, lightContribution);
 

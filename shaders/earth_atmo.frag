@@ -11,7 +11,6 @@ in float vTime;
 
 uniform vec3 uSunPosition;
 
-
 out vec4 FragColor;
 
 void main() {
@@ -21,7 +20,6 @@ void main() {
     vec3 worldNormal = normalize(vWorldNormal);
     float dayFactor = dot(lightDir, worldNormal) + 0.75;
     dayFactor = clamp(dayFactor, 0.0, 1.0);
-
 
     vec3 viewNormal = normalize(vViewNormal);
     vec3 viewDirection = normalize(-vViewPosition);
@@ -40,10 +38,7 @@ void main() {
     float transitionWidth = vAtmoRadius * 0.2;
     float insideAmount =
         1.0 - smoothstep(vAtmoRadius - transitionWidth, vAtmoRadius, cameraDistanceToCenter);
-    
-    // debug
-    // insideAmount = 0.0;
-    
+
     float atmosphereAlpha = 0.9;
     float alpha = mix(smoothFacing, atmosphereAlpha, insideAmount);
     alpha = mix(0.0, alpha, dayFactor);

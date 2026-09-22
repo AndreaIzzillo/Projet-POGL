@@ -69,7 +69,7 @@ void main() {
     noise *= waveHeight;
 
     position += normal * noise;
-    
+
     mat3 viewNormalMatrix = transpose(inverse(mat3(uView * uModel)));
     mat3 worldNormalMatrix = transpose(inverse(mat3(uModel)));
     vLocalPosition = position;

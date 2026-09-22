@@ -354,8 +354,8 @@ void Application::update(float dt)
 
     // The Black Hole
     const float blackHoleOrbit = time * blackHoleOrbitSpeed + blackHoleOrbitPhase;
-    const glm::vec3 blackHolePosition = blackHoleOrbitRadius
-        * glm::vec3(std::cos(blackHoleOrbit), 0.0f, std::sin(blackHoleOrbit));
+    const glm::vec3 blackHolePosition =
+        blackHoleOrbitRadius * glm::vec3(std::cos(blackHoleOrbit), 0.0f, std::sin(blackHoleOrbit));
     const glm::vec3 blackHoleOffset = blackHolePosition - blackHole->getPosition();
     blackHole->setPosition(blackHolePosition);
 

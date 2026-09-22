@@ -8,7 +8,6 @@ class Camera;
 class Mesh;
 class Shader;
 
-
 class BlackHole
 {
 public:

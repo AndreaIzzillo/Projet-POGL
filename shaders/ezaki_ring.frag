@@ -60,6 +60,5 @@ void main() {
     // Sun contribution
     color *= mix(0.03, 1.0, lightContribution);
 
-
     FragColor = vec4(color, 1.0);
 }

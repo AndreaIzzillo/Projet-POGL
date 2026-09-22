@@ -31,7 +31,7 @@ void main() {
     float centerDepth = -centerView.z;
     vec4 centerClip = uProjection * centerView;
 
-    // sphere noir + pour retire de bug de inf
+    // Skip fragments behind the camera to avoid invalid projections.
     if (centerDepth <= 0.0 || centerClip.w <= 0.0) {
         FragColor = vec4(0.0);
         return;
@@ -51,13 +51,11 @@ void main() {
     vec2 dir = (r > 1e-5) ? toCenter / r : vec2(0.0);
     vec2 offset = dir * lens * uDistortionStrength * eventR;
 
-
     float offLen = length(offset);
     if (offLen > uMaxOffset)
         offset *= uMaxOffset / offLen;
 
     vec2 sampleUV = uv + vec2(offset.x / aspect, offset.y);
-
 
     vec2 outAmt = max(-sampleUV, sampleUV - 1.0);
     float outside = max(max(outAmt.x, outAmt.y), 0.0);
@@ -66,7 +64,6 @@ void main() {
 
     float hole = 1.0 - smoothstep(eventR * 0.97, eventR, r);
     vec3 color = mix(bg, vec3(0.0), hole);
-
 
     float ring = 1.0 - smoothstep(0.0, eventR * 0.10, abs(r - eventR * 1.04));
     color += uRingColor * ring * uRingIntensity;
