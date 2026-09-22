@@ -1,4 +1,4 @@
-# Projet POGL
+# OuterGL - Projet POGL
 
 Projet POGL is a real-time 3D space scene built with C++ and OpenGL. It features
 animated celestial bodies, procedural GLSL shaders, a skybox, a supernova, and a
